@@ -1,0 +1,21 @@
+<?php
+
+namespace App\Models;
+use Illuminate\Database\Eloquent\Model;
+
+class Clientes extends Model
+{
+    // protected $connection = 'clientes';
+    protected $table = 'clientes';
+
+    public $timestamps = true;
+
+    protected $fillable = [
+        'ID',
+        'Nombre',
+        'RIF',
+        'Direccion',
+        'Telefono',
+        'Correo'
+    ];
+}
