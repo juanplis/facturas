@@ -1,14 +1,14 @@
 <?php
 
 namespace App\Models;
-
 use Illuminate\Database\Eloquent\Model;
+
 
 class Presupuesto extends Model
 {
-    protected $table = 'presupuestos';
+    public $timestamps = false; // Desactiva el uso de timestamps
 
-    public $timestamps = false; // Desactiva las marcas de tiempo
+    protected $table = 'presupuestos';
 
     protected $fillable = [
         'Cliente_ID',
