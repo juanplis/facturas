@@ -13,13 +13,13 @@ class Items extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'ID',
-        'Presupuesto_ID',
-        'Codigo',
-        'Descripcion',
-        'Cantidad',
-        'Precio_Unitario',
-        'Precio_Total'
+        'id',
+        'presupuesto_id',
+        'codigo',
+        'descripcion',
+        'cantidad',
+        'precio_unitario',
+        'precio_total'
 
     ];
 }

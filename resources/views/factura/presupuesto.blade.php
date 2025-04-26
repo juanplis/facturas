@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCT<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -21,51 +21,55 @@
 
                     @csrf <!-- Protección contra CSRF -->
                     <div class="form-group">
-                        <label for="Cliente_ID">Selecciona un cliente:</label>
-                        <select class="form-control" id="Cliente_ID" name="Cliente_ID" required>
+                        <label for="cliente_id">Selecciona un cliente:</label>
+                        <select class="form-control" id="cliente_id" name="cliente_id" required>
                             <option value="">Seleccione un cliente</option>
                             @foreach($clientes as $cliente)
-                                <option value="{{ $cliente->ID }}">{{ $cliente->Nombre }}</option>
+                                <option value="{{ $cliente->idj }}">{{ $cliente->nombre }}</option>
                             @endforeach
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label for="Descripcion">Selecciona productos:</label>
-                        <select class="form-control" id="Descripcion" name="Descripcion[]" multiple required>
+                        <label for="descripcion">Selecciona productos:</label>
+                        <select class="form-control" id="descripcion" name="descripcion[]" multiple required>
                             <option value="">Seleccione productos</option>
                             @foreach($inventarios as $inventario)
-                                <option value="{{ $inventario->ID }}" data-precio="{{ $inventario->Precio_Unitario }}" data-descripcion="{{ $inventario->Descripcion }}">{{ $inventario->Descripcion }}</option>
+                                <option value="{{ $inventario->id }}" data-precio="{{ $inventario->precio_unitario }}" data-descripcion="{{ $inventario->descripcion }}">{{ $inventario->descripcion }}</option>
                             @endforeach
                         </select>
                     </div>
 
-                    <div id="Producto_Cantidades" class="mb-3"></div> <!-- Contenedor para las cantidades -->
+                    <div id="producto_cantidades" class="mb-3"></div> <!-- Contenedor para las cantidades -->
+
 
                     <div class="form-group">
-                        <label for="Fecha">Fecha:</label>
-                        <input type="date" class="form-control" id="Fecha" name="Fecha" required>
+                        <label for="subtotal">Subtotal:</label>
+                        <input type="number" class="form-control" id="subtotal" name="subtotal" step="0.01" required readonly>
                     </div>
 
                     <div class="form-group">
-                        <label for="Subtotal">Subtotal:</label>
-                        <input type="number" class="form-control" id="Subtotal" name="Subtotal" step="0.01" required readonly>
+                        <label for="total">Total:</label>
+                        <input type="number" class="form-control" id="total" name="total" step="0.01" required readonly>
                     </div>
 
                     <div class="form-group">
-                        <label for="Total">Total:</label>
-                        <input type="number" class="form-control" id="Total" name="Total" step="0.01" required readonly>
+                        <label for="fecha">Fecha:</label>
+                        <input type="date" class="form-control" id="fecha" name="fecha" required>
                     </div>
 
-                    <div class="form-group">
-                        <label for="Condiciones_Pago">Condiciones de Pago:</label>
-                        <input type="text" class="form-control" id="Condiciones_Pago" name="Condiciones_Pago" required>
-                    </div>
 
                     <div class="form-group">
-                        <label for="Validez">Validez:</label>
-                        <input type="date" class="form-control" id="Validez" name="Validez" required>
+                        <label for="validez">Validez:</label>
+                        <input type="date" class="form-control" id="validez" name="validez" required>
                     </div>
+
+                    
+                    <div class="form-group">
+                        <label for="condiciones_pago">Condiciones de Pago:</label>
+                        <input type="text" class="form-control" id="condiciones_pago" name="condiciones_pago" required>
+                    </div>
+
 
                     <button type="submit" class="btn btn-success btn-block">Enviar</button>
                 </form>
@@ -80,20 +84,20 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
     <script>
     $(document).ready(function() {
-        $('#Descripcion').select2({
+        $('#descripcion').select2({
             placeholder: "Selecciona productos",
             allowClear: true
         });
 
         // Manejar la selección de productos y agregar campos de cantidad
-        $('#Descripcion').on('change', function() {
+        $('#descripcion').on('change', function() {
             const selectedOptions = $(this).val();
-            const container = $('#Producto_Cantidades');
+            const container = $('#producto_cantidades');
             container.empty(); // Limpiar contenedor antes de agregar nuevos campos
 
             selectedOptions.forEach(function(productId) {
-                const productDescription = $('#Descripcion option[value=' + productId + ']').data('descripcion');
-                const productPrice = $('#Descripcion option[value=' + productId + ']').data('precio');
+                const productDescription = $('#descripcion option[value=' + productId + ']').data('descripcion');
+                const productPrice = $('#descripcion option[value=' + productId + ']').data('precio');
                 container.append(`
                     <div class="form-group">
                         <label for="cantidad_${productId}">Cantidad del producto ${productDescription}:</label>
@@ -107,16 +111,16 @@
 
     function calcularTotales() {
         let subtotal = 0;
-        const selectedProducts = $('#Descripcion').val();
+        const selectedProducts = $('#descripcion').val();
 
         selectedProducts.forEach(function(productId) {
             const cantidad = parseInt($(`#cantidad_${productId}`).val()) || 0;
-            const precio = parseFloat($(`#Descripcion option[value=${productId}]`).data('precio')) || 0;
+            const precio = parseFloat($(`#descripcion option[value=${productId}]`).data('precio')) || 0;
             subtotal += cantidad * precio;
         });
 
-        $('#Subtotal').val(subtotal.toFixed(2));
-        $('#Total').val(subtotal.toFixed(2)); // Total sin impuestos por ahora
+        $('#subtotal').val(subtotal.toFixed(2));
+        $('#total').val(subtotal.toFixed(2)); // Total sin impuestos por ahora
     }
     </script>
 </body>

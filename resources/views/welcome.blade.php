@@ -30,15 +30,15 @@
   </style>
 </head>
 <body>
-    <br><br><br><br><br><br>    
+    <br><br><br><br><br><br>
   <div class="container">
       <div class="login-container mx-auto col-md-4">
           <h2>Iniciar Sesión</h2>
-          <form action="{{ route('factura.index') }}" method="GET">
+          <form action="{{ route('usuarios') }}" method="GET"> <!-- Cambié GET a POST -->
               @csrf <!-- Asegúrate de incluir el token CSRF -->
               <div class="form-group">
-                  <label for="username">Nombre de usuario</label>
-                  <input type="text" class="form-control" id="username" name="username" placeholder="Nombre de usuario" required>
+                  <label for="name">Nombre de usuario</label>
+                  <input type="text" class="form-control" id="name" name="name" placeholder="Nombre de usuario" required>
               </div>
               <div class="form-group">
                   <label for="password">Contraseña</label>
@@ -46,6 +46,15 @@
               </div>
               <button type="submit" class="btn btn-danger btn-block">Entrar</button>
           </form>
+          @if ($errors->any())
+              <div class="alert alert-danger mt-3">
+                  <ul>
+                      @foreach ($errors->all() as $error)
+                          <li>{{ $error }}</li>
+                      @endforeach
+                  </ul>
+              </div>
+          @endif
       </div>
   </div>
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

@@ -11,11 +11,11 @@ class Inventario extends Model
     public $timestamps = true;
 
     protected $fillable = [
-        'ID',
-        'Codigo',
-        'Descripcion',
-        'Cantidad_Stock',
-        'Precio_Unitario',
-        'Proveedor_ID'
+        'id',
+        'codigo',
+        'descripcion',
+        'cantidad_stock',
+        'precio_unitario',
+        'proveedor_id'
     ];
 }

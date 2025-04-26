@@ -11,11 +11,11 @@ class Clientes extends Model
     public $timestamps = true;
 
     protected $fillable = [
-        'ID',
-        'Nombre',
-        'RIF',
-        'Direccion',
-        'Telefono',
-        'Correo'
+        'id',
+        'nombre',
+        'rif',
+        'direccion',
+        'telefono',
+        'correo'
     ];
 }

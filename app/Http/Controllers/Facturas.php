@@ -1,19 +1,21 @@
 <?php
 
 namespace App\Http\Controllers; // Namespace correcto para los controladores
-
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 use App\Models\Presupuesto;
 use App\Models\Inventario;
 use App\Models\Clientes;
+use App\Models\Usuarios;
 use App\Models\Items;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Routing\Controller;
+use Session;
 
 class Facturas extends Controller{
 
 
-    public function invoke()
+    public function login()
     {
         // Lógica para mostrar la vista de bienvenida
         return view('welcome'); // Asegúrate de que la vista exista
@@ -23,7 +25,33 @@ class Facturas extends Controller{
     {
         return view('factura.index'); // Asegúrate de que el archivo index.blade.php esté en resources/views/factura
     }
+    public function usuarios(Request $request)
+{
+    // Validar los datos recibidos
+    $request->validate([
+        'name' => 'required|string',
+        'password' => 'required|string',
+    ]);
 
+    // Buscar el usuario por nombre
+    $user = Usuarios::where('name', $request->name)->first();
+
+    // Verificar si el usuario existe
+    if ($user) {
+        // Comparar la contraseña ingresada con el hash almacenado
+        $hashedPassword = $user->password;
+
+        // Comprobar si la contraseña ingresada coincide con el hash
+        if (password_verify($request->password, $hashedPassword)) {
+            // Iniciar sesión
+            auth()->login($user);
+            return redirect()->route('factura.index')->with('success', 'Inicio de sesión exitoso.');
+        }
+    }
+
+    // Si las credenciales son incorrectas
+    return redirect()->back()->withErrors(['name' => 'Credenciales incorrectas.']);
+}
 
     public function buscar(Request $request)
 {
@@ -39,95 +67,56 @@ class Facturas extends Controller{
 
 
 
-    public function cargar(Request $request)
+public function cargar(Request $request)
 {
     // Validar los datos recibidos
     $request->validate([
-        'id' => 'sometimes|integer',
-        'Cliente_ID' => 'required|integer',
-        'Fecha' => 'required|date',
-        'Subtotal' => 'required|numeric',
-        'Total' => 'required|numeric',
-        'Condiciones_Pago' => 'nullable|string',
-        'Validez' => 'nullable|date',
-        'Descripcion' => 'required|array',
+        'cliente_id' => 'required|integer',
+        'fecha' => 'required|date',
+        'subtotal' => 'required|numeric',
+        'total' => 'required|numeric',
+        'condiciones_pago' => 'nullable|string',
+        'validez' => 'nullable|date',
+        'descripcion' => 'required|array',
         'cantidad' => 'required|array'
     ]);
 
-    // Cargar todos los clientes e inventarios para la vista
-    $clientes = Clientes::all();
-    $inventarios = Inventario::all();
+    // Crear o actualizar el presupuesto
+    $presupuesto = Presupuesto::updateOrCreate(
+        ['id' => $request->id], // Si se proporciona un ID, se actualiza; si no, se crea uno nuevo
+        [
+            'cliente_id' => $request->cliente_id,
+            'fecha' => $request->fecha,
+            'subtotal' => $request->subtotal,
+            'total' => $request->total,
+            'condiciones_pago' => $request->condiciones_pago ?: null,
+            'validez' => $request->validez ?: null,
+        ]
+    );
 
-    // Si se proporciona un ID, se intenta actualizar el registro existente
-    if ($request->has('id')) {
-        $presupuesto = Presupuesto::with('items')->find($request->id); // Cargar Items relacionados
-        if ($presupuesto) {
-            $presupuesto->update([
-                'Cliente_ID' => $request->Cliente_ID,
-                'Fecha' => $request->Fecha,
-                'Subtotal' => $request->Subtotal,
-                'Total' => $request->Total,
-                'Condiciones_Pago' => $request->Condiciones_Pago ?: null,
-                'Validez' => $request->Validez ?: null,
-            ]);
+    // Actualizar los ítems del presupuesto
+    $this->actualizarItemsPresupuesto($request, $presupuesto->id);
 
-            // Actualizar los items del presupuesto
-            foreach ($request->Descripcion as $index => $descripcionId) {
-                $cantidad = $request->cantidad[$descripcionId];
-                $precioUnitario = Inventario::find($descripcionId)->Precio_Unitario;
-                $precioTotal = $cantidad * $precioUnitario;
+    // Redirigir a la vista con los datos del presupuesto
+    return redirect()->route('factura.cargar', ['id' => $presupuesto->id])->with('success', 'Presupuesto guardado con éxito.');
+}
 
-                Items::updateOrCreate(
-                    ['Presupuesto_ID' => $presupuesto->ID, 'Codigo' => $descripcionId],
-                    [
-                        'Descripcion' => $request->Descripcion[$index],
-                        'Cantidad' => $cantidad,
-                        'Precio_Unitario' => $precioUnitario,
-                        'Precio_Total' => $precioTotal
-                    ]
-                );
-            }
+private function actualizarItemsPresupuesto(Request $request, $presupuestoId)
+{
+    foreach ($request->descripcion as $index => $descripcion_id) {
+        $cantidad = $request->cantidad[$index];
+        $precio_unitario = Inventario::find($descripcion_id)->precio_unitario;
+        $precio_total = $cantidad * $precio_unitario;
 
-            return redirect()->back()->with('success', 'Presupuesto actualizado con éxito.');
-        } else {
-            return redirect()->back()->withErrors(['error' => 'Presupuesto no encontrado.']);
-        }
-    } else {
-        // Si no se proporciona un ID, se crea un nuevo registro
-        $presupuesto = Presupuesto::create([
-            'Cliente_ID' => $request->Cliente_ID,
-            'Fecha' => $request->Fecha,
-            'Subtotal' => $request->Subtotal,
-            'Total' => $request->Total,
-            'Condiciones_Pago' => $request->Condiciones_Pago ?: null,
-            'Validez' => $request->Validez ?: null,
-        ]);
-
-        // Crear los items del presupuesto
-        foreach ($request->Descripcion as $index => $descripcionId) {
-            $cantidad = $request->cantidad[$descripcionId];
-            $precioUnitario = Inventario::find($descripcionId)->Precio_Unitario;
-            $precioTotal = $cantidad * $precioUnitario;
-
-            Items::create([
-                'Presupuesto_ID' => $presupuesto->ID,
-                'Codigo' => $descripcionId,
-                'Descripcion' => $request->Descripcion[$index],
-                'Cantidad' => $cantidad,
-                'Precio_Unitario' => $precioUnitario,
-                'Precio_Total' => $precioTotal
-            ]);
-        }
-
-        // Cargar Items para mostrar en la vista
-        $items = Items::where('Presupuesto_ID', $presupuesto->ID)->get();
-
-        return view('factura.cargar', [
-            'clientes' => $clientes,
-            'inventarios' => $inventarios,
-            'presupuesto' => $presupuesto,
-            'items' => $items // Pasar los items a la vista
-        ]);
+        Items::updateOrCreate(
+            ['presupuesto_id' => $presupuestoId, 'codigo' => $descripcion_id],
+            [
+                'descripcion' => $request->descripcion[$index],
+                'cantidad' => $cantidad,
+                'precio_unitario' => $precio_unitario,
+                'precio_total' => $precio_total
+            ]
+        );
     }
 }
 }

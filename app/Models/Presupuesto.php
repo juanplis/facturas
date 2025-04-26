@@ -11,11 +11,11 @@ class Presupuesto extends Model
     protected $table = 'presupuestos';
 
     protected $fillable = [
-        'Cliente_ID',
-        'Fecha',
-        'Subtotal',
-        'Total',
-        'Condiciones_Pago',
-        'Validez'
+        'cliente_id',
+        'fecha',
+        'subtotal',
+        'total',
+        'condiciones_pago',
+        'validez'
     ];
 }
