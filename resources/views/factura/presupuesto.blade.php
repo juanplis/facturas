@@ -17,7 +17,7 @@
         <div class="card">
             <div class="card-body">
 
-                <form action="{{ route('factura.cargar') }}" method="POST">
+                <form action="{{ route 'factura.carga' }}" method="POST">
 
                     @csrf <!-- Protección contra CSRF -->
                     <div class="form-group">
@@ -64,7 +64,7 @@
                         <input type="date" class="form-control" id="validez" name="validez" required>
                     </div>
 
-                    
+
                     <div class="form-group">
                         <label for="condiciones_pago">Condiciones de Pago:</label>
                         <input type="text" class="form-control" id="condiciones_pago" name="condiciones_pago" required>

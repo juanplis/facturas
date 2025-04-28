@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers; // Namespace correcto para los controladores
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Models\Presupuesto;
 use App\Models\Inventario;
@@ -26,32 +27,28 @@ class Facturas extends Controller{
         return view('factura.index'); // Asegúrate de que el archivo index.blade.php esté en resources/views/factura
     }
     public function usuarios(Request $request)
-{
-    // Validar los datos recibidos
-    $request->validate([
-        'name' => 'required|string',
-        'password' => 'required|string',
-    ]);
+    {
+        // Validar los datos de entrada
+        $request->validate([
+            'name' => 'required|string',
+            'password' => 'required|string',
+        ]);
 
-    // Buscar el usuario por nombre
-    $user = Usuarios::where('name', $request->name)->first();
+        // Buscar el usuario por nombre
+        $usuario = Usuarios::where('name', $request->name)->first();
 
-    // Verificar si el usuario existe
-    if ($user) {
-        // Comparar la contraseña ingresada con el hash almacenado
-        $hashedPassword = $user->password;
-
-        // Comprobar si la contraseña ingresada coincide con el hash
-        if (password_verify($request->password, $hashedPassword)) {
-            // Iniciar sesión
-            auth()->login($user);
-            return redirect()->route('factura.index')->with('success', 'Inicio de sesión exitoso.');
+        // Verificar si el usuario existe y si la contraseña es correcta
+        if ($usuario && Hash::check($request->password, $usuario->password)) {
+            // Las credenciales son correctas
+            return view('factura.index'); // Redirigir a la vista factura.index
+        } else {
+            // Las credenciales son incorrectas
+            return back()->withErrors([
+                'name' => 'El nombre de usuario o la contraseña son incorrectos.',
+            ]);
         }
     }
 
-    // Si las credenciales son incorrectas
-    return redirect()->back()->withErrors(['name' => 'Credenciales incorrectas.']);
-}
 
     public function buscar(Request $request)
 {

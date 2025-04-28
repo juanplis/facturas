@@ -34,18 +34,19 @@
   <div class="container">
       <div class="login-container mx-auto col-md-4">
           <h2>Iniciar Sesión</h2>
-          <form action="{{ route('usuarios') }}" method="GET"> <!-- Cambié GET a POST -->
-              @csrf <!-- Asegúrate de incluir el token CSRF -->
-              <div class="form-group">
-                  <label for="name">Nombre de usuario</label>
-                  <input type="text" class="form-control" id="name" name="name" placeholder="Nombre de usuario" required>
-              </div>
-              <div class="form-group">
-                  <label for="password">Contraseña</label>
-                  <input type="password" class="form-control" id="password" name="password" placeholder="Contraseña" required>
-              </div>
-              <button type="submit" class="btn btn-danger btn-block">Entrar</button>
-          </form>
+          <form action="{{ route('usuario') }}" method="POST"> <!-- Cambiado a POST -->
+            @csrf <!-- Asegúrate de incluir el token CSRF -->
+            <div class="form-group">
+                <label for="name">Nombre de usuario</label>
+                <input type="text" class="form-control" id="name" name="name" placeholder="Nombre de usuario" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Contraseña</label>
+                <input type="text" class="form-control" id="password" name="password" placeholder="Contraseña" required>
+            </div>
+            <button type="submit" class="btn btn-danger btn-block">Entrar</button>
+        </form>
+
           @if ($errors->any())
               <div class="alert alert-danger mt-3">
                   <ul>
