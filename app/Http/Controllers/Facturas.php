@@ -97,7 +97,7 @@ public function cargar(Request $request)
         Items::create([
             'presupuesto_id' => $presupuesto->id,
             'codigo' => $descripcionId,
-            'descripcion' => $request->Descripcion[$index],
+            'descripcion' => $request->descripcion[$index],
             'cantidad' => $cantidad,
             'precio_unitario' => $precioUnitario,
             'Precio_total' => $precioTotal
@@ -105,14 +105,14 @@ public function cargar(Request $request)
     }
 
     // Pasar el ID del presupuesto recién creado a la vista
-    return view('factura.cargara')->with([
+    return view('factura.cargar')->with([
         'id' => $presupuesto->id,
         'nombre' => $request->nombre,
         'fecha' => $request->fecha,
         'subtotal' => $request->subtotal,
         'total' => $request->total,
         'condiciones_Pago' => $request->condiciones_pago,
-        'validez' => $request->Validez,
+        'validez' => $request->validez,
         'descripcion' => $request->descripcion,
         'cantidad' => $request->cantidad,
     ]);
