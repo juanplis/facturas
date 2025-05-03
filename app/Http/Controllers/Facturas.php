@@ -64,63 +64,7 @@ class Facturas extends Controller{
 
 public function cargar(request $request)
 {
-
-    // Validar los datos recibidos
-    $request->validate([
-        'nombre' => 'required|string',
-        'fecha' => 'required|date',
-        'subtotal' => 'required|numeric',
-        'total' => 'required|numeric',
-        'condiciones_pago' => 'nullable|string',
-        'validez' => 'nullable|date',
-        'descripcion' => 'required|array',
-        'cantidad' => 'required|array'
-    ]);
-
-    // Crear un nuevo presupuesto
-    $presupuesto = Presupuesto::create([
-        'cliente_id' => $request->cliente_id,
-        'fecha' => $request->fecha,
-        'subtotal' => $request->subtotal,
-        'total' => $request->total,
-        'condiciones_pago' => $request->condiciones_pago ?: null,
-        'validez' => $request->validez ?: null,
-    ]);
-
-    // Crear los items del presupuesto
-    foreach ($request->Descripcion as $index => $descripcionId) {
-        $cantidad = $request->cantidad[$descripcionId];
-        $precioUnitario = Inventario::find($descripcionId)->precio_unitario;
-        $precioTotal = $cantidad * $precioUnitario;
-
-        Items::create([
-            'presupuesto_id' => $presupuesto->id,
-            'codigo' => $descripcionId,
-            'descripcion' => $request->descripcion[$index],
-            'cantidad' => $cantidad,
-            'precio_unitario' => $precioUnitario,
-            'Precio_total' => $precioTotal
-        ]);
-    }
-
-    // Pasar el ID del presupuesto recién creado a la vista
-    return view('factura.cargar')->with([
-        'id' => $presupuesto->id,
-        'nombre' => $request->nombre,
-        'fecha' => $request->fecha,
-        'subtotal' => $request->subtotal,
-        'total' => $request->total,
-        'condiciones_Pago' => $request->condiciones_pago,
-        'validez' => $request->validez,
-        'descripcion' => $request->descripcion,
-        'cantidad' => $request->cantidad,
-    ]);
-}
-
-public function cargar111(Request $request)
-{
-    // Validar los datos recibidos
-
+    // validar los datos recibidos
     $request->validate([
         'id' => 'sometimes|integer',
         'cliente_id' => 'required|integer',
