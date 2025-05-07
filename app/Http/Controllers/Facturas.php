@@ -24,7 +24,11 @@ class Facturas extends Controller{
 
     public function index()
     {
-        return view('factura.index'); // Asegúrate de que el archivo index.blade.php esté en resources/views/factura
+        {
+        $presupuesto = Presupuesto::all(); // Obtén todos los elementos de la lista
+        return view('factura.index', compact('presupuesto')); // Pasa la variable a la vista
+         }
+        //return view('factura.index'); // Asegúrate de que el archivo index.blade.php esté en resources/views/factura
     }
     public function usuarios(Request $request)
     {
