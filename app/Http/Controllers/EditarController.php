@@ -8,9 +8,9 @@ use Illuminate\Routing\Controller;
 
 class EditarController extends Controller
 {
-    public function editar($request)
+    public function editar($id)
     {
-        $presupuesto = Presupuesto ::all(); // Obtener todos los clientes
+        $presupuesto = Presupuesto ::find($id); // Obtener todos los clientes
         return view('factura.editar', compact('presupuesto')); // Pasar datos a la vista
     }
 }

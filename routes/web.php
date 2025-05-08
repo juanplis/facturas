@@ -11,4 +11,5 @@ Route::post('/factura/index', [Facturas::class, 'usuarios'])->name('usuario');
 Route::get('/factura/index', [Facturas::class, 'index'])->name('factura.index');
 Route::get('/factura/presupuesto', [Facturas::class, 'buscar'])->name('buscar'); // Cambiar el nombre
 Route::post('/factura/cargar', [Facturas::class, 'cargar'])->name('factura.carga');
-Route::get('/factura/editar/{$id}', [EditarController::class, 'editar'])->name('factura.edita');
+Route::get('/factura/editar/{id}', [EditarController::class, 'editar'])->name('factura.edita');
+Route::put('/factura/index/{id}', [Facturas::class, 'update'])->name('factura.index');

@@ -156,6 +156,37 @@ public function cargar(request $request)
             'items' => $items // pasar los items a la vista
         ]);
     }
+    public function update(Request $request, $id)
+{
+    $presupuesto = Presupuesto::find($id); // Encuentra el presupuesto por ID
+
+    // Valida los datos
+    $request->validate([
+        'cliente_id' => 'required|integer',
+        'fecha' => 'required|date',
+        'subtotal' => 'required|numeric',
+        'iva' => 'required|numeric',
+        'total' => 'required|numeric',
+        'condiciones_pago' => 'required|string',
+        'tiempo_entrega' => 'required|numeric',
+        'validez' => 'required|date'
+        // Agrega más validaciones según sea necesario
+    ]);
+
+    // Actualiza los datos
+    $presupuesto->cliente_id = $request->cliente_id;
+    $presupuesto->fecha = $request->fecha;
+    $presupuesto->subtotal = $request->subtotal;
+    $presupuesto->iva = $request->iva;
+    $presupuesto->total = $request->total;
+    $presupuesto-> condiciones_pago= $request->condiciones_pago;
+    $presupuesto->tiempo_entrega = $request->tiempo_entrega;
+    $presupuesto->validez = $request->validez;
+    // Actualiza otros campos según sea necesario
+    $presupuesto->save(); // Guarda los cambios
+
+    return redirect()->route('factura.index')->with('success', 'Presupuesto actualizado correctamente.');
+}
 }
 
 
