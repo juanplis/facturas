@@ -7,7 +7,7 @@
     @include('menu')
     <h1>Editar Presupuesto</h1>
 
-    <form action="{{ route('factura.index', $presupuesto->id) }}" method="POST">
+    <form action="{{ route('factura.update', $presupuesto->id) }}" method="POST">
         @csrf
         @method('PUT')
         <div class="form-group">

@@ -12,4 +12,5 @@ Route::get('/factura/index', [Facturas::class, 'index'])->name('factura.index');
 Route::get('/factura/presupuesto', [Facturas::class, 'buscar'])->name('buscar'); // Cambiar el nombre
 Route::post('/factura/cargar', [Facturas::class, 'cargar'])->name('factura.carga');
 Route::get('/factura/editar/{id}', [EditarController::class, 'editar'])->name('factura.edita');
-Route::put('/factura/index/{id}', [Facturas::class, 'update'])->name('factura.index');
+Route::put('/factura/index/{id}', [Facturas::class, 'update'])->name('factura.update');
+Route::get('/factura/show/{id}', [Facturas::class, 'show'])->name('factura.show');

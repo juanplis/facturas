@@ -37,7 +37,8 @@
                     <td>
                         <a href="{{ route('factura.edita', $presupuesto->id) }}" class="btn btn-primary">Editar</a>
                         <button type="submit" class="btn btn-danger">Eliminar</button>
-                        <a href="" class="btn btn-info">Ver</a>
+                        <a href="{{ route('factura.show', $presupuesto->id) }}" class="btn btn-info">Ver</a>
+
                     </td>
                 </tr>
             @endforeach

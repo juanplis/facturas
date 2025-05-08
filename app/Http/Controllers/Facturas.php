@@ -187,6 +187,15 @@ public function cargar(request $request)
 
     return redirect()->route('factura.index')->with('success', 'Presupuesto actualizado correctamente.');
 }
+public function show($id)
+{
+    // Busca el presupuesto por ID
+    $presupuesto = Presupuesto::findOrFail($id);
+    
+    // Retorna la vista con los detalles del presupuesto
+    return view('factura.index', compact('presupuesto'));
+}
+
 }
 
 
