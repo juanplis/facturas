@@ -23,8 +23,8 @@
 </style>
 
 <div class="menu">
-    <a href="">Inicio</a>
-    <a href="#servicios">Servicios</a>
+    <a href="{{ route('factura.index') }}">Inicio</a>
+    <a href="{{ route('user.index') }}">cliente</a>
     <a href="#sobre-nosotros">Sobre Nosotros</a>
     <a href="#contacto">Contacto</a>
 </div>

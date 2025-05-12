@@ -28,8 +28,6 @@
 
                                 <option value="{{ $cliente->id}}">{{ $cliente->nombre }}</option>
 
-                                <option value="{{ $cliente->id }}">{{ $cliente->nombre }}</option>
-
                             @endforeach
                         </select>
                     </div>
