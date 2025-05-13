@@ -18,4 +18,7 @@ class Clientes extends Model
         'telefono',
         'correo'
     ];
+    public function presupuestos() {
+        return $this->hasMany(Presupuesto::class);
+    }
 }

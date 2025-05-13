@@ -2,29 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Presupuesto;
-use PDF; // ← Importación añadida
+use PDF; // Asegúrate de importar la fachada
+use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 
 class PresupuestoController extends Controller
 {
-    public function index()
-    {
-        $presupuestos = Presupuesto::with('clientes')->paginate(10);
-        return view('presupuestos.index', compact('presupuestos'));
-    }
-
-    public function generatePDF($id)
-    {
-        $presupuesto = Presupuesto::with(['clientes', 'items'])
-            ->findOrFail($id);
-
-        $pdf = PDF::loadView('presupuestos.pdf', compact('presupuesto'))
-            ->setPaper('a4', 'portrait')
-            ->setOptions(['defaultFont' => 'sans-serif']); // ← Opción recomendada
-
-        return $pdf->download("SSC-{$presupuesto->id}.pdf");
-    }
-    public function generatePDF2()
+    public function generatePDF()
     {
         $data = [
             'cliente' => 'YORMY DAVILA',

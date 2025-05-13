@@ -5,12 +5,13 @@ use App\Http\Controllers\EditarController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Facturas;
 use App\Http\Controllers\ListaController;
+use App\Http\Controllers\PresupuestoController;
 
 // Ruta para acceder al método index del controlador Facturas
 Route::get('/login', [Facturas::class, 'login'])->name('welcome');
 Route::post('/factura/index', [Facturas::class, 'usuarios'])->name('usuario');
 Route::get('/factura/index', [Facturas::class, 'index'])->name('factura.index');
-Route::get('/factura/presupuesto', [Facturas::class, 'buscar'])->name('buscar'); 
+Route::get('/factura/presupuesto', [Facturas::class, 'buscar'])->name('buscar');
 Route::post('/factura/cargar', [Facturas::class, 'cargar'])->name('factura.carga');
 
 
@@ -25,4 +26,14 @@ Route::post('/cliente/cargar', [ClientesController::class, 'update'])->name('use
 
 
 
-//Route::put('/cliente/crear/{id}', [ClientesController::class, 'update'])->name('user.update');    
+//Route::put('/cliente/crear/{id}', [ClientesController::class, 'update'])->name('user.update');
+
+
+
+
+Route::get('/presupuesto', [PresupuestoController::class, 'generatePDF2']);
+
+// pdf nuevo
+// routes/web.php
+Route::get('/presupuestos', [PresupuestoController::class, 'index'])->name('presupuestos.index');
+Route::get('/presupuestos/{id}/pdf', [PresupuestoController::class, 'generatePDF'])->name('presupuestos.pdf');

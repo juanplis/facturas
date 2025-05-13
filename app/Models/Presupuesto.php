@@ -1,21 +1,25 @@
 <?php
 
 namespace App\Models;
+
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+
 
 
 class Presupuesto extends Model
 {
-    public $timestamps = false; // Desactiva el uso de timestamps
+    // Relación con Cliente (1 presupuesto pertenece a 1 cliente)
+    public function clientes(): BelongsTo
+    {
+        return $this->belongsTo(Clientes::class, 'cliente_id');
+    }
 
-    protected $table = 'presupuestos';
+    // Relación con Items (1 presupuesto tiene muchos items)
+    public function items()
+    {
+        return $this->hasMany(Item::class);
+    }
 
-    protected $fillable = [
-        'cliente_id',
-        'fecha',
-        'subtotal',
-        'total',
-        'condiciones_pago',
-        'validez'
-    ];
 }
