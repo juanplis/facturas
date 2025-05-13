@@ -23,35 +23,35 @@ class Facturas extends Controller{
     }
 
     public function index()
-    {
-        {
-        $presupuesto = Presupuesto::all(); // Obtén todos los elementos de la lista
-        return view('factura.index', compact('presupuesto')); // Pasa la variable a la vista
-         }
-        //return view('factura.index'); // Asegúrate de que el archivo index.blade.php esté en resources/views/factura
-    }
+{
+    $presupuestos = Presupuesto::all(); // Obtén todos los elementos de la lista
+    return view('factura.index', compact('presupuestos')); // Pasa la variable a la vista
+}
+
+
     public function usuarios(Request $request)
-    {
-        // Validar los datos de entrada
-        $request->validate([
-            'name' => 'required|string',
-            'password' => 'required|string',
+{
+    // Validar los datos de entrada
+    $request->validate([
+        'name' => 'required|string',
+        'password' => 'required|string',
+    ]);
+
+    // Buscar el usuario por nombre
+    $usuario = Usuarios::where('name', $request->name)->first();
+
+    // Verificar si el usuario existe y si la contraseña es correcta
+    if ($usuario && Hash::check($request->password, $usuario->password)) {
+        // Las credenciales son correctas
+        return redirect()->route('factura.index'); // Redirigir a la vista factura.index
+    } else {
+        // Las credenciales son incorrectas
+        return back()->withErrors([
+            'name' => 'El nombre de usuario o la contraseña son incorrectos.',
         ]);
-
-        // Buscar el usuario por nombre
-        $usuario = Usuarios::where('name', $request->name)->first();
-
-        // Verificar si el usuario existe y si la contraseña es correcta
-        if ($usuario && Hash::check($request->password, $usuario->password)) {
-            // Las credenciales son correctas
-            return view('factura.index'); // Redirigir a la vista factura.index
-        } else {
-            // Las credenciales son incorrectas
-            return back()->withErrors([
-                'name' => 'El nombre de usuario o la contraseña son incorrectos.',
-            ]);
-        }
     }
+}
+
 
 
     public function buscar(Request $request)
@@ -191,7 +191,7 @@ public function ver($id)
 {
     // Busca el presupuesto por ID
     $presupuesto = Presupuesto::findOrFail($id);
-    
+
     // Retorna la vista con los detalles del presupuesto
     return view('factura.ver', compact('presupuesto'));
 }
@@ -213,10 +213,10 @@ public function eliminar($id)
     if ($presupuesto) {
         // Primero, eliminar los items relacionados con el presupuesto
         items::where('presupuesto_id', $id)->delete();
-        
+
         // Luego, eliminar el presupuesto
         $presupuesto->delete();
-        
+
         return redirect()->back()->with('success', 'Presupuesto y sus items eliminados con éxito.');
     }
     return redirect()->back()->with('error', 'Presupuesto no encontrado.');

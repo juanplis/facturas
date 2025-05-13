@@ -38,37 +38,38 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach ($presupuesto as $presupuesto)
-                <tr>
-                    <td>{{ $presupuesto->cliente_id }}</td>
-                    <td>{{ $presupuesto->fecha }}</td>
-                    <td>{{ $presupuesto->subtotal }}</td>
-                    <td>{{ $presupuesto->iva }}</td>
-                    <td>{{ $presupuesto->total }}</td>
-                    <td>{{ $presupuesto->condiciones_pago }}</td>
-                    <td>{{ $presupuesto->tiempo_entrega }}</td>
-                    <td>{{ $presupuesto->validez }}</td>
-                    <td>
-                        <a href="{{ route('factura.ver', $presupuesto->id) }}" class="btn btn-info">
-                            <i class="fas fa-eye"></i> <!-- Icono de ojo -->
-                        </a>
-                        <a href="{{ route('factura.edita', $presupuesto->id) }}" class="btn btn-primary">
-                            <i class="fas fa-pencil-alt"></i> <!-- Icono de lápiz -->
-                        </a>
-                        <form action="{{ route('factura.elimina', $presupuesto->id) }}" method="POST" class="delete-form" style="display:inline;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger delete-button" data-id="{{ $presupuesto->id }}">
-                                <i class="fas fa-trash-alt"></i> <!-- Icono de papelera -->
-                            </button>
-                        </form>
-                        <a href="{{ route('presupuestos.pdf', $presupuesto->id) }}" class="btn btn-success">
-                            <i class="fas fa-file-pdf"></i> <!-- Icono de PDF -->
-                        </a>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
+    @foreach ($presupuestos as $presupuesto) <!-- Asegúrate de que esta variable esté definida -->
+    <tr>
+        <td>{{ $presupuesto->cliente_id }}</td>
+        <td>{{ $presupuesto->fecha }}</td>
+        <td>{{ $presupuesto->subtotal }}</td>
+        <td>{{ $presupuesto->iva }}</td>
+        <td>{{ $presupuesto->total }}</td>
+        <td>{{ $presupuesto->condiciones_pago }}</td>
+        <td>{{ $presupuesto->tiempo_entrega }}</td>
+        <td>{{ $presupuesto->validez }}</td>
+        <td>
+            <a href="{{ route('factura.ver', $presupuesto->id) }}" class="btn btn-info">
+                <i class="fas fa-eye"></i>
+            </a>
+            <a href="{{ route('factura.edita', $presupuesto->id) }}" class="btn btn-primary">
+                <i class="fas fa-pencil-alt"></i>
+            </a>
+            <form action="{{ route('factura.elimina', $presupuesto->id) }}" method="POST" class="delete-form" style="display:inline;">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="btn btn-danger delete-button" data-id="{{ $presupuesto->id }}">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </form>
+            <a href="{{ route('presupuestos.pdf', $presupuesto->id) }}" class="btn btn-success">
+                <i class="fas fa-file-pdf"></i>
+            </a>
+        </td>
+    </tr>
+    @endforeach
+</tbody>
+
         </table>
     </div>
 

@@ -34,31 +34,22 @@
                 <label for="correo">Correo</label>
                 <input type="email" name="correo" class="form-control" required>
             </div>
-            <button type="submit" class="btn btn-success">Crear Cliente</button>
-        </form>
 
-        <hr>
-
-        <h2>Contactos (Personas Naturales)</h2>
-        <form action="{{ route('contactos.store') }}" method="POST">
-            @csrf
+            <h2>Contactos (Personas Naturales)</h2>
             <div class="form-group">
-                <label for="nombre_contacto">Nombre</label>
+                <label for="nombre_contacto">Nombre del Contacto</label>
                 <input type="text" class="form-control" id="nombre_contacto" name="nombre_contacto" required>
             </div>
             <div class="form-group">
-                <label for="telefono_contacto">Teléfono</label>
+                <label for="telefono_contacto">Teléfono del Contacto</label>
                 <input type="text" class="form-control" id="telefono_contacto" name="telefono_contacto" required>
             </div>
             <div class="form-group">
-                <label for="correo_contacto">Correo</label>
+                <label for="correo_contacto">Correo del Contacto</label>
                 <input type="email" class="form-control" id="correo_contacto" name="correo_contacto" required>
             </div>
-            <div class="form-group">
-                <label for="cliente_id">Cliente ID</label>
-                <input type="text" class="form-control" id="cliente_id" name="cliente_id" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Agregar Contacto</button>
+
+            <button type="submit" class="btn btn-success">Crear Cliente</button>
         </form>
     </div>
 </body>
