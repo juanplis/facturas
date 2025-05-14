@@ -196,15 +196,32 @@ public function ver($id)
     return view('factura.ver', compact('presupuesto'));
 }
 
-public function eliminar($id)
+/*public function eliminar($id)
 {
     $presupuesto = Presupuesto::find($id);
     if ($presupuesto) {
         $presupuesto->delete();
+
         return redirect()->back()->with('success', 'Presupuesto eliminado con éxito.');
     }
     return redirect()->back()->with('error', 'Presupuesto no encontrado.');
+}*/
+
+public function eliminar($id)
+{
+    $presupuesto = Presupuesto::find($id);
+    if ($presupuesto) {
+        // Primero, eliminar los items relacionados con el presupuesto
+        items::where('presupuesto_id', $id)->delete();
+        
+        // Luego, eliminar el presupuesto
+        $presupuesto->delete();
+        
+        return redirect()->back()->with('success', 'Presupuesto y sus items eliminados con éxito.');
+    }
+    return redirect()->back()->with('error', 'Presupuesto no encontrado.');
 }
+
 
 }
 

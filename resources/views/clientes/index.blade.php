@@ -31,7 +31,7 @@
                     <th>Dirección</th>
                     <th>Teléfono</th>
                     <th>Correo</th>
-                    <th>Acciones</th> <!-- Columna para acciones -->
+                    <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
@@ -45,13 +45,14 @@
                     <td>
                         <div class="btn-group" role="group" aria-label="Acciones">
                             <a href="{{ route('user.editar', $cliente->id) }}" class="btn btn-primary">
-                                <i class="fas fa-pencil-alt"></i> <!-- Icono de lápiz -->
+                                <i class="fas fa-pencil-alt"></i>
                             </a>
-                            <form action="{{ route('user.elimina', $cliente->id) }}" method="POST" style="display:inline;">
+                            <form action="{{ route('user.elimina', $cliente->id) }}" method="POST" style="display:inline;" class="delete-form">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-danger" onclick="return confirm('¿Estás seguro de que quieres eliminar este cliente?');">
-                                    <i class="fas fa-trash-alt"></i> <!-- Icono de papelera -->
+                                <button type="submit" class="btn btn-danger delete-button" data-id="{{ $cliente->id }}">
+                                  <!-- <button type="submit" class="btn btn-danger delete-button" data-id="{{ $cliente->id }}" onclick="return confirm('¿Estás seguro de que quieres eliminar este cliente?');">-->
+                                    <i class="fas fa-trash-alt"></i>
                                 </button>
                             </form>
                         </div>
@@ -59,6 +60,62 @@
                 </tr>
                 @endforeach
             </tbody>
+        </table>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Manejar el evento de envío del formulario de eliminación
+            const deleteForms = document.querySelectorAll('.delete-form');
+
+            deleteForms.forEach(form => {
+                form.addEventListener('submit', function(event) {
+                    event.preventDefault(); // Prevenir el envío del formulario
+
+                    const formData = new FormData(form);
+                    const id = form.querySelector('.delete-button').getAttribute('data-id');
+
+                    Swal.fire({
+                        title: '¿Estás seguro?',
+                        text: "¡No podrás revertir esto!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Sí, eliminarlo!',
+                        cancelButtonText: 'Cancelar'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit(); // Enviar el formulario si el usuario confirma
+                        }
+                    });
+                });
+            });
+
+            // Mostrar mensajes de éxito o error al cargar la página
+            @if(session('success'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Éxito',
+                    text: '{{ session('success') }}',
+                    confirmButtonText: 'Aceptar'
+                });
+            @endif
+
+            @if(session('error'))
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: '{{ session('error') }}',
+                    confirmButtonText: 'Aceptar'
+                });
+            @endif
+        });
+    </script>
+</body>
+
+
         </table>
     </div>
 </body>

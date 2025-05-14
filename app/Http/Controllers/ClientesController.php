@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Clientes;
+use App\Models\Contacto;
+use App\Models\Presupuesto;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 
@@ -77,13 +79,28 @@ class ClientesController extends Controller
         return view('clientes.editar', compact('cliente'));
     }
 
-    public function eliminar($id)
-    {
-        $cliente = Clientes::find($id);
-        if ($cliente) {
-            $cliente->delete();
-            return redirect()->back()->with('success', 'Cliente eliminado con éxito.');
+public function eliminar($id)
+{
+    $cliente = Clientes::find($id);
+    if ($cliente) {
+        // Verificar si hay presupuestos relacionados con el cliente
+        $presupuesto = Presupuesto::where('cliente_id', $id)->count();
+        
+        if ($presupuesto > 0) {
+            // Si hay presupuestos, retornar un mensaje de error
+            return redirect()->back()->with('error', 'El cliente tiene presupuestos asociados. Debe eliminarlos antes de eliminar el cliente.');
         }
-        return redirect()->back()->with('error', 'Cliente no encontrado.');
+        
+        // Luego, eliminar los contactos relacionados con el cliente
+        Contacto::where('cliente_id', $id)->delete();
+        
+        // Finalmente, eliminar el cliente
+        $cliente->delete();
+        
+        return redirect()->back()->with('success', 'Cliente y sus datos eliminados con éxito.');
     }
+    return redirect()->back()->with('error', 'Cliente no encontrado.');
+}
+
+   
 }
