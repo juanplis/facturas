@@ -1,62 +1,129 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Editar Presupuesto</title>
-    <!-- Enlace a Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <!-- Enlace a Select2 CSS -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editar Presupuesto</title>
+  <!-- Enlace a Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <!-- Enlace a Select2 CSS -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
 </head>
 <body>
-    @include('menu')
+  @include('menu')
 
-    <div class="container mt-5">
-        <h1 class="text-center mb-4">Editar Presupuesto</h1>
+  <div class="container mt-5">
+      <h1 class="text-center">Editar Presupuesto</h1>
+      <div class="card">
+          <div class="card-body">
 
-        <form action="{{ route('factura.update', $presupuesto->id) }}" method="POST">
-            @csrf
-            @method('PUT')
-            <div class="form-group">
-                <label for="cliente_id">Cliente ID</label>
-                <input type="number" name="cliente_id" class="form-control" value="{{ $presupuesto->cliente_id }}" required>
-            </div>
-            <div class="form-group">
-                <label for="fecha">Fecha</label>
-                <input type="date" name="fecha" class="form-control" value="{{ $presupuesto->fecha }}" required>
-            </div>
-            <div class="form-group">
-                <label for="subtotal">Subtotal</label>
-                <input type="number" step="0.01" name="subtotal" class="form-control" value="{{ $presupuesto->subtotal }}" required>
-            </div>
-            <div class="form-group">
-                <label for="iva">IVA</label>
-                <input type="number" step="0.01" name="iva" class="form-control" value="{{ $presupuesto->iva }}" required>
-            </div>
-            <div class="form-group">
-                <label for="total">Total</label>
-                <input type="number" step="0.01" name="total" class="form-control" value="{{ $presupuesto->total }}" required>
-            </div>
-            <div class="form-group">
-                <label for="condiciones_pago">Condiciones de Pago</label>
-                <input type="text" name="condiciones_pago" class="form-control" value="{{ $presupuesto->condiciones_pago }}" required>
-            </div>
-            <div class="form-group">
-                <label for="tiempo_entrega">Tiempo de Entrega (días)</label>
-                <input type="number" name="tiempo_entrega" class="form-control" value="{{ $presupuesto->tiempo_entrega }}" required>
-            </div>
-            <div class="form-group">
-                <label for="validez">Validez</label>
-                <input type="date" name="validez" class="form-control" value="{{ $presupuesto->validez }}" required>
-            </div>
-            <button type="submit" class="btn btn-success btn-block">Actualizar</button>
-        </form>
-    </div>
+              <form action="{{ route('factura.update', $presupuesto->id) }}" method="POST">
+                  @csrf
+                  @method('PUT')
 
-    <!-- Enlace a Bootstrap JS y jQuery -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+                  <div class="form-group">
+                      <label for="cliente_id">Selecciona un cliente:</label>
+                      <select class="form-control" id="cliente_id" name="cliente_id" required>
+                          <option value="">Seleccione un cliente</option>
+                          @foreach($clientes as $cliente)
+                              <option value="{{ $cliente->id }}" {{ $presupuesto->cliente_id == $cliente->id ? 'selected' : '' }}>{{ $cliente->nombre }}</option>
+                          @endforeach
+                      </select>
+                  </div>
+
+                  <div class="form-group">
+                      <label for="descripcion">Selecciona productos:</label>
+                      <select class="form-control" id="descripcion" name="descripcion[]" multiple required>
+                          <option value="">Seleccione productos</option>
+                          @foreach($inventarios as $inventario)
+                              <option value="{{ $inventario->id }}" data-precio="{{ $inventario->precio_unitario }}" data-descripcion="{{ $inventario->descripcion }}" {{ in_array($inventario->id, $presupuesto->productos) ? 'selected' : '' }}>
+                                  {{ $inventario->descripcion }}
+                              </option>
+                          @endforeach
+                      </select>
+                  </div>
+
+                  <div id="producto_cantidades" class="mb-3"></div> <!-- Contenedor para las cantidades -->
+
+                  <div class="form-group">
+                      <label for="subtotal">Subtotal:</label>
+                      <input type="number" class="form-control" id="subtotal" name="subtotal" step="0.01" value="{{ $presupuesto->subtotal }}" required readonly>
+                  </div>
+
+                  <div class="form-group">
+                      <label for="total">Total:</label>
+                      <input type="number" class="form-control" id="total" name="total" step="0.01" value="{{ $presupuesto->total }}" required readonly>
+                  </div>
+
+                  <div class="form-group">
+                      <label for="fecha">Fecha:</label>
+                      <input type="date" class="form-control" id="fecha" name="fecha" value="{{ $presupuesto->fecha }}" required>
+                  </div>
+
+                  <div class="form-group">
+                      <label for="validez">Validez:</label>
+                      <input type="date" class="form-control" id="validez" name="validez" value="{{ $presupuesto->validez }}" required>
+                  </div>
+
+                  <div class="form-group">
+                      <label for="condiciones_pago">Condiciones de Pago:</label>
+                      <input type="text" class="form-control" id="condiciones_pago" name="condiciones_pago" value="{{ $presupuesto->condiciones_pago }}" required>
+                  </div>
+
+                  <button type="submit" class="btn btn-success btn-block">Actualizar</button>
+              </form>
+          </div>
+      </div>
+  </div>
+
+  <!-- Enlace a Bootstrap JS y dependencias -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <!-- Enlace a Select2 JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+  <script>
+  $(document).ready(function() {
+      $('#descripcion').select2({
+          placeholder: "Selecciona productos",
+          allowClear: true
+      });
+
+      // Manejar la selección de productos y agregar campos de cantidad
+      $('#descripcion').on('change', function() {
+          const selectedOptions = $(this).val();
+          const container = $('#producto_cantidades');
+          container.empty(); // Limpiar contenedor antes de agregar nuevos campos
+
+          selectedOptions.forEach(function(productId) {
+              const productDescription = $('#descripcion option[value=' + productId + ']').data('descripcion');
+              const productPrice = $('#descripcion option[value=' + productId + ']').data('precio');
+              const cantidad = '{{ json_encode($presupuesto->cantidades) }}'[productId] || 1; // Asignar cantidad existente o 1
+
+              container.append(`
+                  <div class="form-group">
+                      <label for="cantidad_${productId}">Cantidad del producto ${productDescription}:</label>
+                      <input type="number" class="form-control" id="cantidad_${productId}" name="cantidad[${productId}]" min="1" value="${cantidad}" required oninput="calcularTotales()">
+                      <small>Precio: $${productPrice}</small>
+                  </div>
+              `);
+          });
+      });
+  });
+
+  function calcularTotales() {
+      let subtotal = 0;
+      const selectedProducts = $('#descripcion').val();
+
+      selectedProducts.forEach(function(productId) {
+          const cantidad = parseInt($(`#cantidad_${productId}`).val()) || 0;
+          const precio = parseFloat($(`#descripcion option[value=${productId}]`).data('precio')) || 0;
+          subtotal += cantidad * precio;
+      });
+
+      $('#subtotal').val(subtotal.toFixed(2));
+      $('#total').val(subtotal.toFixed(2)); // Total sin impuestos por ahora
+  }
+  </script>
 </body>
 </html>

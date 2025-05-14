@@ -156,7 +156,7 @@ public function cargar(request $request)
             'items' => $items // pasar los items a la vista
         ]);
     }
-    public function update(Request $request, $id)
+   public function update(Request $request, $id)
 {
     $presupuesto = Presupuesto::find($id); // Encuentra el presupuesto por ID
 
@@ -165,25 +165,32 @@ public function cargar(request $request)
         'cliente_id' => 'required|integer',
         'fecha' => 'required|date',
         'subtotal' => 'required|numeric',
-        'iva' => 'required|numeric',
         'total' => 'required|numeric',
         'condiciones_pago' => 'required|string',
-        'tiempo_entrega' => 'required|numeric',
-        'validez' => 'required|date'
-        // Agrega más validaciones según sea necesario
+        'validez' => 'required|date',
+        'descripcion' => 'required|array',
+        'cantidad' => 'required|array',
+        'cantidad.*' => 'required|integer|min:1', // Validar cada cantidad
     ]);
 
-    // Actualiza los datos
+    // Actualiza los datos del presupuesto
     $presupuesto->cliente_id = $request->cliente_id;
     $presupuesto->fecha = $request->fecha;
     $presupuesto->subtotal = $request->subtotal;
-    $presupuesto->iva = $request->iva;
     $presupuesto->total = $request->total;
-    $presupuesto-> condiciones_pago= $request->condiciones_pago;
-    $presupuesto->tiempo_entrega = $request->tiempo_entrega;
+    $presupuesto->condiciones_pago = $request->condiciones_pago;
     $presupuesto->validez = $request->validez;
-    // Actualiza otros campos según sea necesario
-    $presupuesto->save(); // Guarda los cambios
+
+    // Guardar el presupuesto actualizado
+    $presupuesto->save();
+
+    // Actualiza los productos y sus cantidades
+    $presupuesto->productos()->sync(array_map(function ($productId) use ($request) {
+        return [
+            'id' => $productId,
+            'cantidad' => $request->cantidad[$productId]
+        ];
+    }, $request->descripcion));
 
     return redirect()->route('factura.index')->with('success', 'Presupuesto actualizado correctamente.');
 }
@@ -196,16 +203,6 @@ public function ver($id)
     return view('factura.ver', compact('presupuesto'));
 }
 
-/*public function eliminar($id)
-{
-    $presupuesto = Presupuesto::find($id);
-    if ($presupuesto) {
-        $presupuesto->delete();
-
-        return redirect()->back()->with('success', 'Presupuesto eliminado con éxito.');
-    }
-    return redirect()->back()->with('error', 'Presupuesto no encontrado.');
-}*/
 
 public function eliminar($id)
 {
