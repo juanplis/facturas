@@ -14,67 +14,76 @@ class ClientesController extends Controller
         return view('clientes.index', compact('clientes')); // Pasar datos a la vista
     }
 
-      public function crear()
+    public function crear()
     {
-        //$clientes = Clientes::all(); // Obtener todos los clientes
-        return view('clientes.crear'); // Pasar datos a la vista
+            return view('clientes.crear'); // Pasar datos a la vista
     }
-
-   public function update(request $request) // Cambiar 'request' a 'Request'
+    public function store(Request $request)
 {
+    // Validación de datos
     $request->validate([
-        'id' => 'sometimes|integer',
-        'nombre' => 'required|string', // Cambiar 'varchar' a 'string'
-        'rif' => 'required|string', // Cambiar 'varchar' a 'string'
-        'direccion' => 'required|string', // Cambiar 'varchar' a 'string'
-        'telefono' => 'required|string', // Cambiar 'varchar' a 'string'
-        'correo' => 'required|email', // Cambiar 'varchar' a 'email'
+        'nombre' => 'required|string',
+        'rif' => 'required|string',
+        'direccion' => 'required|string',
+        'telefono' => 'required|string',
+        'correo' => 'required|email',
     ]);
 
-    // Crear un nuevo registro
-        Clientes::create([
-
-        'nombre' => $request->nombre,
-        'rif' => $request->rif,
-        'direccion' => $request->direccion,
-        'telefono' => $request->telefono,
-        'correo' => $request->correo,
-    ]);
-
-    return redirect()->route('user.index')->with('success', 'Cliente creado correctamente.'); // Mensaje corregido
-}
-
-/*
-
-
-
-
-    public function editar(Request $request, $id)
-    {
-    $cliente = Clientes::find($id); // 
-
-    // Valida los datos
-    $request->validate([
-        'id' => 'required|integer',
-        'nombre' => 'required|varchar',
-        'rif' => 'required|varchar',
-        'direccion' => 'required|varchar',
-        'telefono' => 'required|varchar',
-        'correo' => 'required|varchar',
-        // Agrega más validaciones según sea necesario
-    ]);
-
-    // Actualiza los datos
-    $cliente->id = $request->id;
+    // Crear nuevo cliente
+    $cliente = new Clientes();
     $cliente->nombre = $request->nombre;
     $cliente->rif = $request->rif;
     $cliente->direccion = $request->direccion;
     $cliente->telefono = $request->telefono;
-    $cliente-> correo= $request->correo;
-    // Actualiza otros campos según sea necesario
-    $cliente->save(); // Guarda los cambios
+    $cliente->correo = $request->correo;
+    $cliente->save();
 
-    return redirect()->route('user.index')->with('success', 'Presupuesto actualizado correctamente.');
+    return redirect()->route('user.index')->with('success', 'Cliente creado correctamente.');
+}
+
+    public function actualizar(Request $request, $id) // Cambiar 'request' a 'Request' y agregar $id
+    {
+        // Validación de datos
+        $request->validate([
+            'nombre' => 'required|string',
+            'rif' => 'required|string',
+            'direccion' => 'required|string',
+            'telefono' => 'required|string',
+            'correo' => 'required|email',
+        ]);
+
+        // Buscar el cliente por ID
+        $cliente = Clientes::findOrFail($id);
+
+        // Actualiza los datos
+        $cliente->nombre = $request->nombre;
+        $cliente->rif = $request->rif;
+        $cliente->direccion = $request->direccion;
+        $cliente->telefono = $request->telefono;
+        $cliente->correo = $request->correo;
+        
+        // Guarda los cambios
+        $cliente->save();
+
+        return redirect()->route('user.index')->with('success', 'Cliente actualizado correctamente.');
     }
-*/
+
+    public function editar($id)
+    {
+        $cliente = Clientes::find($id);
+        if (!$cliente) {
+            return redirect()->route('user.index')->with('error', 'Cliente no encontrado.');
+        }
+        return view('clientes.editar', compact('cliente'));
+    }
+
+    public function eliminar($id)
+    {
+        $cliente = Clientes::find($id);
+        if ($cliente) {
+            $cliente->delete();
+            return redirect()->back()->with('success', 'Cliente eliminado con éxito.');
+        }
+        return redirect()->back()->with('error', 'Cliente no encontrado.');
+    }
 }

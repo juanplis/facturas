@@ -187,13 +187,23 @@ public function cargar(request $request)
 
     return redirect()->route('factura.index')->with('success', 'Presupuesto actualizado correctamente.');
 }
-public function show($id)
+public function ver($id)
 {
     // Busca el presupuesto por ID
     $presupuesto = Presupuesto::findOrFail($id);
     
     // Retorna la vista con los detalles del presupuesto
-    return view('factura.index', compact('presupuesto'));
+    return view('factura.ver', compact('presupuesto'));
+}
+
+public function eliminar($id)
+{
+    $presupuesto = Presupuesto::find($id);
+    if ($presupuesto) {
+        $presupuesto->delete();
+        return redirect()->back()->with('success', 'Presupuesto eliminado con éxito.');
+    }
+    return redirect()->back()->with('error', 'Presupuesto no encontrado.');
 }
 
 }

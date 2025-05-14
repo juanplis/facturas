@@ -19,6 +19,6 @@ class Clientes extends Model
         'correo'
     ];
     public function presupuestos() {
-        return $this->hasMany(Presupuesto::class);
+        return $this->hasMany(Presupuesto::class, 'cliente_id');
     }
 }

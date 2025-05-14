@@ -14,22 +14,18 @@ Route::get('/factura/index', [Facturas::class, 'index'])->name('factura.index');
 Route::get('/factura/presupuesto', [Facturas::class, 'buscar'])->name('buscar');
 Route::post('/factura/cargar', [Facturas::class, 'cargar'])->name('factura.carga');
 
-
 Route::get('/factura/editar/{id}', [EditarController::class, 'editar'])->name('factura.edita');
 Route::put('/factura/index/{id}', [Facturas::class, 'update'])->name('factura.update');
-Route::get('/factura/show/{id}', [Facturas::class, 'show'])->name('factura.show');
+Route::get('/factura/ver/{id}', [Facturas::class, 'ver'])->name('factura.ver');
+Route::delete('/factura/index/{id}', [Facturas::class, 'eliminar'])->name('factura.elimina');
 
-
+// Ruta para acceder al método index del controlador Clientes
 Route::get('/cliente/index', [ClientesController::class, 'index'])->name('user.index');
 Route::get('/cliente/crear', [ClientesController::class, 'crear'])->name('user.crear');
-Route::post('/cliente/cargar', [ClientesController::class, 'update'])->name('user.update');
-
-
-
-//Route::put('/cliente/crear/{id}', [ClientesController::class, 'update'])->name('user.update');
-
-
-
+Route::post('/cliente/cargar', [ClientesController::class, 'store'])->name('user.store');
+Route::get('/cliente/editar/{id}', [ClientesController::class, 'editar'])->name('user.editar');
+Route::put('/cliente/actualizar/{id}', [ClientesController::class, 'actualizar'])->name('user.actualiza');
+Route::delete('/cliente/index/{id}', [ClientesController::class, 'eliminar'])->name('user.elimina');
 
 Route::get('/presupuesto', [PresupuestoController::class, 'generatePDF2']);
 
