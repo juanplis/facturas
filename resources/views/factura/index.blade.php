@@ -55,10 +55,10 @@
                         <a href="{{ route('factura.edita', $presupuesto->id) }}" class="btn btn-primary">
                             <i class="fas fa-pencil-alt"></i> <!-- Icono de lápiz -->
                         </a>
-                        <form action="{{ route('factura.elimina', $presupuesto->id) }}" method="POST" style="display:inline;">
+                        <form action="{{ route('factura.elimina', $presupuesto->id) }}" method="POST" class="delete-form" style="display:inline;">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-danger" onclick="return confirm('¿Estás seguro de que quieres eliminar este presupuesto?');">
+                            <button type="submit" class="btn btn-danger delete-button" data-id="{{ $presupuesto->id }}">
                                 <i class="fas fa-trash-alt"></i> <!-- Icono de papelera -->
                             </button>
                         </form>
@@ -68,6 +68,61 @@
                     </td>
                 </tr>
                 @endforeach
-            </
+            </tbody>
+        </table>
+    </div>
 
+    <!-- Incluir el script de SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Manejar el evento de envío del formulario de eliminación
+            const deleteForms = document.querySelectorAll('.delete-form');
+
+            deleteForms.forEach(form => {
+                form.addEventListener('submit', function(event) {
+                    event.preventDefault(); // Prevenir el envío del formulario
+
+                    const formData = new FormData(form);
+                    const id = form.querySelector('.delete-button').getAttribute('data-id');
+
+                    Swal.fire({
+                        title: '¿Estás seguro?',
+                        text: "¡No podrás revertir esto!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Sí, eliminarlo!',
+                        cancelButtonText: 'Cancelar'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit(); // Enviar el formulario si el usuario confirma
+                        }
+                    });
+                });
+            });
+
+            // Mostrar mensajes de éxito o error al cargar la página
+            @if(session('success'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Éxito',
+                    text: '{{ session('success') }}',
+                    confirmButtonText: 'Aceptar'
+                });
+            @endif
+
+            @if(session('error'))
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: '{{ session('error') }}',
+                    confirmButtonText: 'Aceptar'
+                });
+            @endif
+        });
+    </script>
+</body>
+</html>
