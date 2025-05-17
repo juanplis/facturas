@@ -23,6 +23,7 @@
     <div class="container mt-5">
         <h1>Lista de Presupuestos</h1>
         <a href="{{ route('buscar') }}" class="btn btn-primary mb-3">Crear Presupuesto (STELL)</a>
+        <a href="{{ route('buscar') }}" class="btn btn-primary mb-3">Crear Presupuesto (TuCocina)</a>
         <table class="table table-bordered">
             <thead class="thead-light">
                 <tr>

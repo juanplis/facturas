@@ -156,44 +156,65 @@ public function cargar(request $request)
             'items' => $items // pasar los items a la vista
         ]);
     }
-   public function update(Request $request, $id)
+  public function update(Request $request, $id)
 {
-    $presupuesto = Presupuesto::find($id); // Encuentra el presupuesto por ID
 
-    // Valida los datos
+     // Valida los datos
     $request->validate([
         'cliente_id' => 'required|integer',
         'fecha' => 'required|date',
         'subtotal' => 'required|numeric',
         'total' => 'required|numeric',
-        'condiciones_pago' => 'required|string',
-        'validez' => 'required|date',
+        'condiciones_pago' => 'nullable|string',
+        'validez' => 'nullable|date',
         'descripcion' => 'required|array',
         'cantidad' => 'required|array',
         'cantidad.*' => 'required|integer|min:1', // Validar cada cantidad
     ]);
+
+    // Encuentra el presupuesto por ID
+    $presupuesto = Presupuesto::with('items')->find($id); // Cargar items relacionados
+
+    if (!$presupuesto) {
+        return redirect()->route('factura.index')->with('error', 'Presupuesto no encontrado.');
+    }
+
 
     // Actualiza los datos del presupuesto
     $presupuesto->cliente_id = $request->cliente_id;
     $presupuesto->fecha = $request->fecha;
     $presupuesto->subtotal = $request->subtotal;
     $presupuesto->total = $request->total;
-    $presupuesto->condiciones_pago = $request->condiciones_pago;
-    $presupuesto->validez = $request->validez;
+    $presupuesto->condiciones_pago = $request->condiciones_pago ?: null;
+    $presupuesto->validez = $request->validez ?: null;
 
     // Guardar el presupuesto actualizado
     $presupuesto->save();
 
-    // Actualiza los productos y sus cantidades
-    $presupuesto->productos()->sync(array_map(function ($productId) use ($request) {
-        return [
-            'id' => $productId,
-            'cantidad' => $request->cantidad[$productId]
-        ];
-    }, $request->descripcion));
+    // Eliminar items existentes
+    $presupuesto->items()->delete();
+
+    // Agregar nuevos items y sus cantidades
+    foreach ($request->descripcion as $index => $descripcionid) {
+        $cantidad = $request->cantidad[$descripcionid];
+        $preciounitario = Inventario::find($descripcionid)->precio_unitario;
+        $preciototal = $cantidad * $preciounitario;
+
+        // Crear los nuevos items
+        $presupuesto->items()->create([
+            'codigo' => $descripcionid,
+            'descripcion' => $request->descripcion[$index],
+            'cantidad' => $cantidad,
+            'precio_unitario' => $preciounitario,
+            'precio_total' => $preciototal
+        ]);
+    }
 
     return redirect()->route('factura.index')->with('success', 'Presupuesto actualizado correctamente.');
 }
+
+
+
 public function ver($id)
 {
     // Busca el presupuesto por ID
@@ -218,6 +239,30 @@ public function eliminar($id)
     }
     return redirect()->back()->with('error', 'Presupuesto no encontrado.');
 }
+
+ public function editar($id)
+    {
+        // Obtener el presupuesto por ID
+        $presupuesto = Presupuesto::find($id);
+
+        if (!$presupuesto) {
+            return redirect()->route('factura.index')->with('error', 'Presupuesto no encontrado.');
+        }
+
+        // Obtener todos los clientes
+        $clientes = Clientes::all();
+
+        // Obtener los ítems relacionados con el presupuesto
+        $items = $presupuesto->items; // Asegúrate de que la relación esté definida en el modelo Presupuesto
+
+        // Obtener todos los productos del inventario
+        $productos = Inventario::all(); // Cambia esto si necesitas filtrar productos específicos
+
+        // Pasar datos a la vista
+        return view('factura.editar', compact('presupuesto', 'clientes', 'items', 'productos'));
+    }
+
+
 
 
 }
