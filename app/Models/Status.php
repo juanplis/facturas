@@ -8,15 +8,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 
 
-class Presupuesto extends Model
+class Status extends Model
 {
      // Especificar los atributos que se pueden asignar masivamente
 
-     protected $table = 'presupuestos';
+     protected $table = 'estatus_presupuesto';
     protected $fillable = [
-        'cliente_id',         // Agrega este atributo
-        'subtotal',
-        'total',
+        'id',         // Agrega este atributo
+        'nombre',
+        'estatus',
         'fecha',
         'validez',
         'condiciones_pago',

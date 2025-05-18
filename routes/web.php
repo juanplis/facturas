@@ -15,7 +15,6 @@ Route::get('/factura/index', [Facturas::class, 'index'])->name('factura.index');
 
 Route::get('/factura/presupuestoStell', [Facturas::class, 'buscar'])->name('buscar');
 Route::post('/factura/cargar', [Facturas::class, 'cargar'])->name('factura.carga');
-
 Route::post('/contactos', [ContactoController::class, 'store'])->name('contactos.store');
 
 Route::get('/factura/editar/{id}', [Facturas::class, 'editar'])->name('factura.edita');
