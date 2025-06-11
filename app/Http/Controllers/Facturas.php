@@ -22,12 +22,20 @@ class Facturas extends Controller{
         return view('welcome'); // Asegúrate de que la vista exista
     }
 
-    public function index()
+    public function indexqq()
 {
+
     $presupuestos = Presupuesto::all(); // Obtén todos los elementos de la lista
     return view('factura.index', compact('presupuestos')); // Pasa la variable a la vista
-}
 
+
+
+}
+public function index()
+{
+    $presupuestos = Presupuesto::with('estado')->get(); // Relación "estado"
+    return view('factura.index', compact('presupuestos'));
+}
 
     public function usuarios(Request $request)
 {

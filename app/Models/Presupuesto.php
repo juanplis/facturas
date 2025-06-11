@@ -40,10 +40,13 @@ class Presupuesto extends Model
         return $this->belongsTo(Contacto::class, 'cliente_id');
     }
     // En App\Models\Presupuesto.php
-    public function estatus_presupuesto(): BelongsTo
+  /*  public function estatus_presupuesto(): BelongsTo
     {
-        return $this->belongsTo(EstatusPresupuesto::class, 'id');
-    }
-
+        return $this->belongsTo(EstatusPresupuesto::class, 'estatus_presupuesto');
+    }*/
+public function estado() // ¡Nuevo nombre!
+{
+    return $this->belongsTo(EstatusPresupuesto::class, 'estatus_presupuesto');
+}
 
 }

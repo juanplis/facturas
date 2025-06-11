@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class EstatusPresupuesto extends Model
 {
     protected $table = 'estatus_presupuesto';
+    protected $primaryKey = 'id'; // Debe coincidir con la FK
 
     protected $fillable = [
         'id',

@@ -65,19 +65,16 @@
                     <td>{{ $presupuesto->condiciones_pago }}</td>
                     <td>{{ $presupuesto->tiempo_entrega }}</td>
                     <td>{{ $presupuesto->validez }}</td>
-                    <td>
-@php
-print_r($presupuesto->estatus_presupuesto);
-@endphp
-    @if($presupuesto->relationLoaded('estatus_presupuesto') && $presupuesto->estatus_presupuesto)
-        <span class="estatus-badge estatus-{{ $presupuesto->estatus_presupuesto->estatus_presupuesto ? 'activo' : 'inactivo' }}">
-            {{ $presupuesto->estatus_presupuesto->nombre }}
+<td>
+    @if($presupuesto->estado) {{-- ¡Ahora es un objeto! --}}
+        <span class="estatus-badge estatus-{{ $presupuesto->estado->estatus ? 'activo' : 'inactivo' }}">
+            {{ $presupuesto->estado->nombre }} {{-- Muestra el nombre --}}
         </span>
     @else
         <span class="text-muted">Estado no disponible</span>
     @endif
 </td>
-                    <td>
+<td>
                         <a href="{{ route('factura.ver', $presupuesto->id) }}" class="btn btn-info">
                             <i class="fas fa-eye"></i>
                         </a>
