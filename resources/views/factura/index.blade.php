@@ -17,6 +17,21 @@
         tbody tr:nth-child(even) {
             background-color: #ffffff; /* Color blanco */
         }
+
+        /* Indicadores de estado */
+        .estatus-badge {
+            padding: 0.25em 0.6em;
+            border-radius: 10px;
+            font-size: 0.85em;
+        }
+        .estatus-activo {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .estatus-inactivo {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
     </style>
 </head>
 <body>
@@ -35,42 +50,54 @@
                     <th>Condiciones de Pago</th>
                     <th>Tiempo Entrega</th>
                     <th>Validez</th>
+                    <th>Estatus</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
-    @foreach ($presupuestos as $presupuesto) <!-- Asegúrate de que esta variable esté definida -->
-    <tr>
-        <td>{{ $presupuesto->cliente_id }}</td>
-        <td>{{ $presupuesto->fecha }}</td>
-        <td>{{ $presupuesto->subtotal }}</td>
-        <td>{{ $presupuesto->iva }}</td>
-        <td>{{ $presupuesto->total }}</td>
-        <td>{{ $presupuesto->condiciones_pago }}</td>
-        <td>{{ $presupuesto->tiempo_entrega }}</td>
-        <td>{{ $presupuesto->validez }}</td>
-        <td>
-            <a href="{{ route('factura.ver', $presupuesto->id) }}" class="btn btn-info">
-                <i class="fas fa-eye"></i>
-            </a>
-            <a href="{{ route('factura.edita', $presupuesto->id) }}" class="btn btn-primary">
-                <i class="fas fa-pencil-alt"></i>
-            </a>
-            <form action="{{ route('factura.elimina', $presupuesto->id) }}" method="POST" class="delete-form" style="display:inline;">
-                @csrf
-                @method('DELETE')
-                <button type="submit" class="btn btn-danger delete-button" data-id="{{ $presupuesto->id }}">
-                    <i class="fas fa-trash-alt"></i>
-                </button>
-            </form>
-            <a href="{{ route('presupuestos.pdf', $presupuesto->id) }}" class="btn btn-success">
-                <i class="fas fa-file-pdf"></i>
-            </a>
-        </td>
-    </tr>
-    @endforeach
-</tbody>
-
+                @foreach ($presupuestos as $presupuesto)
+                <tr>
+                    <td>{{ $presupuesto->cliente_id }}</td>
+                    <td>{{ $presupuesto->fecha }}</td>
+                    <td>{{ number_format($presupuesto->subtotal, 2, ',', '.') }} €</td>
+                    <td>{{ number_format($presupuesto->iva, 2, ',', '.') }} €</td>
+                    <td>{{ number_format($presupuesto->total, 2, ',', '.') }} €</td>
+                    <td>{{ $presupuesto->condiciones_pago }}</td>
+                    <td>{{ $presupuesto->tiempo_entrega }}</td>
+                    <td>{{ $presupuesto->validez }}</td>
+                    <td>
+@php
+print_r($presupuesto->estatus_presupuesto);
+@endphp
+    @if($presupuesto->relationLoaded('estatus_presupuesto') && $presupuesto->estatus_presupuesto)
+        <span class="estatus-badge estatus-{{ $presupuesto->estatus_presupuesto->estatus_presupuesto ? 'activo' : 'inactivo' }}">
+            {{ $presupuesto->estatus_presupuesto->nombre }}
+        </span>
+    @else
+        <span class="text-muted">Estado no disponible</span>
+    @endif
+</td>
+                    <td>
+                        <a href="{{ route('factura.ver', $presupuesto->id) }}" class="btn btn-info">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <a href="{{ route('factura.edita', $presupuesto->id) }}" class="btn btn-primary">
+                            <i class="fas fa-pencil-alt"></i>
+                        </a>
+                        <form action="{{ route('factura.elimina', $presupuesto->id) }}" method="POST" class="delete-form" style="display:inline;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger delete-button" data-id="{{ $presupuesto->id }}">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </form>
+                        <a href="{{ route('presupuestos.pdf', $presupuesto->id) }}" class="btn btn-success">
+                            <i class="fas fa-file-pdf"></i>
+                        </a>
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
         </table>
     </div>
 

@@ -36,3 +36,9 @@ Route::get('/presupuesto', [PresupuestoController::class, 'generatePDF2']);
 // routes/web.php
 Route::get('/presupuestos', [PresupuestoController::class, 'index'])->name('presupuestos.index');
 Route::get('/presupuestos/{id}/pdf', [PresupuestoController::class, 'generatePDF'])->name('presupuestos.pdf');
+
+
+use App\Http\Controllers\EstatusPresupuestoController;
+
+Route::get('/estatus-presupuestos', [EstatusPresupuestoController::class, 'index']);
+Route::get('/estatus-presupuestos/{id}', [EstatusPresupuestoController::class, 'show']);

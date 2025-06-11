@@ -3,6 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Presupuesto;
+use App\Models\Contacto;
+use App\Models\EstatusPresupuesto;
+
+
 use PDF; // ← Importación añadida
 
 class PresupuestoController extends Controller
@@ -15,14 +19,15 @@ class PresupuestoController extends Controller
 
     public function generatePDF($id)
     {
-        $presupuesto = Presupuesto::with(['clientes', 'items'])
+        $presupuesto = Presupuesto::with(['clientes', 'items','contactos','estatus_presupuesto'])
             ->findOrFail($id);
+
 
         $pdf = PDF::loadView('presupuestos.pdf', compact('presupuesto'))
             ->setPaper('a4', 'portrait')
             ->setOptions(['defaultFont' => 'sans-serif']); // ← Opción recomendada
 
-        return $pdf->download("SSC-{$presupuesto->id}.pdf");
+        return $pdf->stream("SSC-{$presupuesto->id}.pdf");
     }
     public function generatePDF2()
     {

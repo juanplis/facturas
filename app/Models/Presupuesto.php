@@ -20,6 +20,7 @@ class Presupuesto extends Model
         'fecha',
         'validez',
         'condiciones_pago',
+        'estatus_presupuesto',
         // Agrega otros atributos que necesites
     ];
     // Relación con Cliente (1 presupuesto pertenece a 1 cliente)
@@ -33,5 +34,16 @@ class Presupuesto extends Model
     {
         return $this->hasMany(Item::class, 'presupuesto_id');
     }
+    // Relación con Contacto (1 presupuesto pertenece a 1 contacto)
+    public function contactos(): BelongsTo
+    {
+        return $this->belongsTo(Contacto::class, 'cliente_id');
+    }
+    // En App\Models\Presupuesto.php
+    public function estatus_presupuesto(): BelongsTo
+    {
+        return $this->belongsTo(EstatusPresupuesto::class, 'id');
+    }
+
 
 }
