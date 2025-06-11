@@ -9,6 +9,8 @@ use App\Models\Inventario;
 use App\Models\Clientes;
 use App\Models\Usuarios;
 use App\Models\Items;
+use App\Models\Empresa;
+
 use Illuminate\Support\Facades\DB;
 use Illuminate\Routing\Controller;
 use Session;

@@ -47,8 +47,8 @@
                 <label for="estatus" class="block text-sm font-medium text-gray-700">Estatus</label>
                 <select name="estatus" id="estatus"
                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                    <option value="activo" {{ $empresa->estatus == 'activo' ? 'selected' : '' }}>Activo</option>
-                    <option value="inactivo" {{ $empresa->estatus == 'inactivo' ? 'selected' : '' }}>Inactivo</option>
+                    <option value="1" {{ $empresa->estatus == '1' ? 'selected' : '' }}>Activo</option>
+                    <option value="0" {{ $empresa->estatus == '0' ? 'selected' : '' }}>Inactivo</option>
                 </select>
             </div>
 
@@ -57,7 +57,7 @@
                 <label for="fecha_registro" class="block text-sm font-medium text-gray-700">Fecha de Registro *</label>
                 <input type="date" name="fecha_registro" id="fecha_registro"
                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                    value="{{ old('fecha_registro', $empresa->fecha_registro->format('Y-m-d')) }}" required>
+                    value="{{ old('fecha_registro', $empresa->fecha_registro) }}" required>
                 @error('fecha_registro')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror
