@@ -42,3 +42,7 @@ use App\Http\Controllers\EstatusPresupuestoController;
 
 Route::get('/estatus-presupuestos', [EstatusPresupuestoController::class, 'index']);
 Route::get('/estatus-presupuestos/{id}', [EstatusPresupuestoController::class, 'show']);
+
+
+use App\Http\Controllers\EmpresaController;
+Route::resource('empresas', EmpresaController::class);
