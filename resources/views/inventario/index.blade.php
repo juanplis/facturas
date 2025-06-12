@@ -24,6 +24,18 @@
     <div class="container mt-5">
         <h1>Inventario</h1>
 
+        {{-- Mensajes de sesión (por ejemplo, para éxito en la actualización) --}}
+        @if(session('success'))
+            <div class="alert alert-success">
+                {{ session('success') }}
+            </div>
+        @endif
+        @if(session('error'))
+            <div class="alert alert-danger">
+                {{ session('error') }}
+            </div>
+        @endif
+
         <form action="{{ route('inventario.index') }}" method="GET" class="form-inline search-form">
             <div class="input-group w-100">
                 <input type="text" name="search" class="form-control" placeholder="Buscar por código, descripción o concepto..." value="{{ request('search') }}">
@@ -52,6 +64,7 @@
                     <th>Versión</th>
                     <th>Dimensiones</th>
                     <th>Detalles</th>
+                    <th>Acciones</th> {{-- Nueva columna para acciones --}}
                 </tr>
             </thead>
             <tbody>
@@ -59,17 +72,23 @@
                 <tr>
                     <td>{{ $inventario->codigo }}</td>
                     <td>{{ $inventario->descripcion }}</td>
-                    <td>{{ $inventario->precio_cocina }}</td>
                     <td>{{ $inventario->precio_unitario }}</td>
+                    <td>{{ $inventario->precio_cocina }}</td>
                     <td>{{ $inventario->costo }}</td>
                     <td>{{ $inventario->concepto_general }}</td>
                     <td>{{ $inventario->version }}</td>
                     <td>{{ $inventario->dimensiones }}</td>
                     <td>{{ $inventario->detalles }}</td>
+                    <td>
+                        {{-- Botón para editar --}}
+                        <a href="{{ route('inventario.edit', $inventario->id) }}" class="btn btn-sm btn-primary">
+                            <i class="fas fa-edit"></i> Editar
+                        </a>
+                    </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="9" class="text-center">No hay productos en el inventario.</td>
+                    <td colspan="10" class="text-center">No hay productos en el inventario.</td> {{-- Actualizado a colspan 10 --}}
                 </tr>
                 @endforelse
             </tbody>

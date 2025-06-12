@@ -34,6 +34,8 @@ Route::delete('/cliente/index/{id}', [ClientesController::class, 'eliminar'])->n
 
 Route::get('/presupuesto', [PresupuestoController::class, 'generatePDF2']);
 Route::get('/inventario', [InventarioController::class, 'index'])->name('inventario.index');
+Route::get('/inventario/{inventario}/edit', [InventarioController::class, 'edit'])->name('inventario.edit');
+Route::put('/inventario/{inventario}', [InventarioController::class, 'update'])->name('inventario.update');
 
 
 // pdf nuevo
