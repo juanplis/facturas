@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Presupuesto;
-use App\Models\Contacto;
+use App\Models\Clientes;
 use App\Models\EstatusPresupuesto;
 
 
@@ -13,13 +13,13 @@ class PresupuestoController extends Controller
 {
     public function index()
     {
-        $presupuestos = Presupuesto::with('clientes')->paginate(10);
+        $presupuestos = Presupuesto::with('cliente')->paginate(10);
         return view('presupuestos.index', compact('presupuestos'));
     }
 
     public function generatePDF($id)
     {
-        $presupuesto = Presupuesto::with(['clientes', 'items','contactos','estatus_presupuesto'])
+        $presupuesto = Presupuesto::with(['cliente', 'items','contactos','estatus_presupuesto'])
             ->findOrFail($id);
 
 

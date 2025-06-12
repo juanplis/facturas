@@ -1,21 +1,33 @@
 <?php
 
 namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Inventario extends Model
 {
-    // protected $connection = 'inventario';
+    use HasFactory;
+
+    // Especifica el nombre de la tabla si no sigue la convención de pluralización
     protected $table = 'inventario';
 
-    public $timestamps = true;
+    // Si tu tabla tiene un campo 'id' que no es auto-incremental o no usa timestamps,
+    // puedes desactivar estas características:
+    // protected $primaryKey = 'id';
+    // public $incrementing = false;
+    // public $timestamps = false;
 
+    // Si necesitas definir los campos que son asignables en masa
     protected $fillable = [
-        'id',
         'codigo',
         'descripcion',
-        'cantidad_stock',
-        'precio_unitario',
-        'proveedor_id'
+        'precio_steel',
+        'precio_tu_cocina',
+        'costos',
+        'concepto_general',
+        'version',
+        'dimensiones',
+        'detalles'
     ];
 }

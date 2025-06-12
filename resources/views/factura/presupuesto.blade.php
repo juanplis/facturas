@@ -12,16 +12,19 @@
 <body>
     @include('menu')
 
-    <div class="container mt-5">
-        @foreach($empresas as $empresa)
-            <h1 class="text-center">Formulario de Presupuestos: {{ $empresa->razon_social }}</h1>
-            <input type="hidden" name="empresa_id" value="{{ $empresa->id }}"> <!-- Campo oculto para el ID de la empresa -->
-        @endforeach
+
 
         <div class="card">
             <div class="card-body">
                 <form action="{{ route('factura.carga') }}" method="POST">
                     @csrf <!-- Protección contra CSRF -->
+
+                        <div class="container mt-5">
+        @foreach($empresas as $empresa)
+            <h1 class="text-center">Formulario de Presupuestos: {{ $empresa->razon_social }}</h1>
+            <input type="hidden" name="empresa_id" value="{{ $empresa->id }}"> <!-- Campo oculto para el ID de la empresa -->
+        @endforeach
+
 
                     <div class="form-group">
                         <label for="cliente_id">Selecciona un cliente:</label>

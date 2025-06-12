@@ -72,17 +72,22 @@ public function index()
     // Obtener productos
     $inventarios = Inventario::all(); // Cambié $inventario a $inventarios para mayor claridad
 
-    // Obtener el ID enviado
-
-
-    // Obtener empresas que coincidan con el ID recibido
+    // Buscar la empresa por ID
+     // Obtener empresas que coincidan con el ID recibido
     $empresas = Empresa::where('id', $id)->get();
 
     // Retornar la vista con los datos necesarios, incluyendo el ID y las empresas
-    return view('factura.presupuesto', compact('clientes', 'inventarios', 'empresas', 'id'));
+
+    // Verificar si se encontró la empresa
+    if (!$empresas) {
+        return redirect()->back()->withErrors(['error' => 'Empresa no encontrada.']);
+    }
+
+    // Retornar la vista con los datos necesarios
+    return view('factura.presupuesto', compact('clientes', 'inventarios', 'empresas'));
 }
 
-public function cargar(request $request)
+/*public function cargar(request $request)
 {
     // validar los datos recibidos
     $request->validate([
@@ -171,7 +176,72 @@ public function cargar(request $request)
             'items' => $items // pasar los items a la vista
         ]);
     }
-}
+}*/
+
+
+
+public function cargar(Request $request)
+    {
+        // 1. Validar los datos recibidos
+        $request->validate([
+            'cliente_id' => 'required|integer',
+            'fecha' => 'required|date',
+            'subtotal' => 'required|numeric',
+            'total' => 'required|numeric',
+            'condiciones_pago' => 'nullable|string',
+            'validez' => 'nullable|date',
+            'descripcion' => 'required|array', // Array de IDs de productos
+            'cantidad' => 'required|array',     // Array asociativo de cantidades
+            'empresa_id' => 'required|integer'  // Validar el campo oculto de la empresa
+        ]);
+
+        // 2. Crear un nuevo registro de Presupuesto
+        $presupuesto = Presupuesto::create([
+            'cliente_id' => $request->cliente_id,
+            'fecha' => $request->fecha,
+            'subtotal' => $request->subtotal,
+            'total' => $request->total,
+            'condiciones_pago' => $request->condiciones_pago ?: null, // Usa null si está vacío
+            'validez' => $request->validez ?: null,                   // Usa null si está vacío
+            'empresa_id' => $request->empresa_id, // Guardar empresa_id al crear
+            'status' => 1 // Establecer el estado en 1 por defecto al crear
+        ]);
+
+        // 3. Crear los ítems asociados a este presupuesto
+        foreach ($request->descripcion as $index => $descripcionid) {
+            // Asegúrate de que $descripcionid es el ID del inventario
+            $cantidad = $request->cantidad[$descripcionid];
+
+            // Obtener el precio unitario del inventario
+            $inventarioItem = Inventario::find($descripcionid);
+            if (!$inventarioItem) {
+                // Manejar el caso de que el producto no exista (opcional, pero buena práctica)
+                return redirect()->back()->withErrors(['error' => "El producto con ID {$descripcionid} no fue encontrado."]);
+            }
+            $preciounitario = $inventarioItem->precio_unitario;
+            $preciototal = $cantidad * $preciounitario;
+
+            Items::create([
+                'presupuesto_id' => $presupuesto->id,
+                'codigo' => $descripcionid, // Aquí 'codigo' parece ser el ID del producto
+                'descripcion' => $inventarioItem->descripcion, // Usar la descripción del inventario
+                'cantidad' => $cantidad,
+                'precio_unitario' => $preciounitario,
+                'precio_total' => $preciototal
+            ]);
+        }
+
+        // 4. Cargar los ítems recién creados para mostrarlos en la vista de confirmación
+        // Opcional: Eager load la empresa y el cliente si los necesitas en la vista 'factura.cargar'
+        $presupuesto->load(['items', 'cliente', 'empresa']);
+
+        // 5. Retornar la vista con los datos del presupuesto y sus ítems
+        return view('factura.cargar', [
+            'presupuesto' => $presupuesto,
+            'items' => $presupuesto->items // Ahora los ítems están cargados en el presupuesto
+        ])->with('success', 'Presupuesto creado con éxito.'); // Mensaje de éxito
+    }
+
 
 
 

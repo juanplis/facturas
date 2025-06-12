@@ -25,6 +25,6 @@
 <div class="menu">
     <a href="{{ route('factura.index') }}">Inicio</a>
     <a href="{{ route('user.index') }}">cliente</a>
-    <a href="#sobre-nosotros">Sobre Nosotros</a>
+       <a href="{{ route('inventario.index') }}">Inventario</a>
     <a href=" #contacto">Empresa</a>
 </div>

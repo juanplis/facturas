@@ -24,12 +24,12 @@
     <div class="header">
 
         <p class="text-right">PRESUPUESTO: COT{{ str_pad($presupuesto->id, 5, '0', STR_PAD_LEFT) }}</p>
-        <p class="text-right"> CODIGO CLIENTE: {{ $presupuesto->clientes->id }}</p>
-        <p>CLIENTE: {{ $presupuesto->clientes->nombre }}</p>
-        <p class="text-right">N° RIF: {{ $presupuesto->clientes->rif }}</p>
+        <p class="text-right"> CODIGO CLIENTE: {{ $presupuesto->cliente->id }}</p>
+        <p>CLIENTE: {{ $presupuesto->cliente->nombre }}</p>
+        <p class="text-right">N° RIF: {{ $presupuesto->cliente->rif }}</p>
 
 
-        <p>DIRECCIÓN: {{ $presupuesto->clientes->direccion }}</p>
+        <p>DIRECCIÓN: {{ $presupuesto->cliente->direccion }}</p>
         <p>CONTACTO: {{ $presupuesto->contactos->nombre }}</p>
         <p  class="text-right">TELEFONO: {{ $presupuesto->contactos->telefono }}</p>
         <p>CORREO: {{ $presupuesto->contactos->correo }}</p>

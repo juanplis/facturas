@@ -60,9 +60,9 @@
                 <tr>
                     <td>{{ $presupuesto->cliente_id }}</td>
                     <td>{{ $presupuesto->fecha }}</td>
-                    <td>{{ number_format($presupuesto->subtotal, 2, ',', '.') }} €</td>
-                    <td>{{ number_format($presupuesto->iva, 2, ',', '.') }} €</td>
-                    <td>{{ number_format($presupuesto->total, 2, ',', '.') }} €</td>
+                    <td>{{ number_format($presupuesto->subtotal, 2, ',', '.') }} </td>
+                    <td>{{ number_format($presupuesto->iva, 2, ',', '.') }} </td>
+                    <td>{{ number_format($presupuesto->total, 2, ',', '.') }} </td>
                     <td>{{ $presupuesto->condiciones_pago }}</td>
                     <td>{{ $presupuesto->tiempo_entrega }}</td>
                     <td>{{ $presupuesto->validez }}</td>

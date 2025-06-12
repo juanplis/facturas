@@ -7,6 +7,7 @@ use App\Http\Controllers\Facturas;
 use App\Http\Controllers\ListaController;
 use App\Http\Controllers\PresupuestoController;
 use App\Http\Controllers\ContactoController;
+use App\Http\Controllers\InventarioController;
 
 // Ruta para acceder al método index del controlador Facturas
 Route::get('/login', [Facturas::class, 'login'])->name('welcome');
@@ -32,6 +33,8 @@ Route::put('/cliente/actualizar/{id}', [ClientesController::class, 'actualizar']
 Route::delete('/cliente/index/{id}', [ClientesController::class, 'eliminar'])->name('user.elimina');
 
 Route::get('/presupuesto', [PresupuestoController::class, 'generatePDF2']);
+Route::get('/inventario', [InventarioController::class, 'index'])->name('inventario.index');
+
 
 // pdf nuevo
 // routes/web.php
