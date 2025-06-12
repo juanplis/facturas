@@ -26,5 +26,5 @@
     <a href="{{ route('factura.index') }}">Inicio</a>
     <a href="{{ route('user.index') }}">cliente</a>
     <a href="#sobre-nosotros">Sobre Nosotros</a>
-    <a href=" #contacto">Contacto</a>
+    <a href=" #contacto">Empresa</a>
 </div>

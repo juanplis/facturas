@@ -8,15 +8,13 @@ use App\Http\Controllers\ListaController;
 use App\Http\Controllers\PresupuestoController;
 use App\Http\Controllers\ContactoController;
 
-Route::get('/', function () {    return view('welcome');
-});
-
 // Ruta para acceder al método index del controlador Facturas
 Route::get('/login', [Facturas::class, 'login'])->name('welcome');
 Route::post('/factura/index', [Facturas::class, 'usuarios'])->name('usuario');
 Route::get('/factura/index', [Facturas::class, 'index'])->name('factura.index');
 
-Route::get('/factura/presupuestoStell', [Facturas::class, 'buscar'])->name('buscar');
+
+Route::get('/factura/presupuesto/{id}', [Facturas::class, 'buscar'])->name('buscar');
 Route::post('/factura/cargar', [Facturas::class, 'cargar'])->name('factura.carga');
 Route::post('/contactos', [ContactoController::class, 'store'])->name('contactos.store');
 

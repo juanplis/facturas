@@ -1,4 +1,4 @@
-<!DOCT<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -13,21 +13,22 @@
     @include('menu')
 
     <div class="container mt-5">
-        <h1 class="text-center">Formulario de Presupuestos</h1>
+        @foreach($empresas as $empresa)
+            <h1 class="text-center">Formulario de Presupuestos: {{ $empresa->razon_social }}</h1>
+            <input type="hidden" name="empresa_id" value="{{ $empresa->id }}"> <!-- Campo oculto para el ID de la empresa -->
+        @endforeach
+
         <div class="card">
             <div class="card-body">
-
-                <form action="{{ route ('factura.carga') }}" method="POST">
-
+                <form action="{{ route('factura.carga') }}" method="POST">
                     @csrf <!-- Protección contra CSRF -->
+
                     <div class="form-group">
                         <label for="cliente_id">Selecciona un cliente:</label>
                         <select class="form-control" id="cliente_id" name="cliente_id" required>
                             <option value="">Seleccione un cliente</option>
                             @foreach($clientes as $cliente)
-
-                                <option value="{{ $cliente->id}}">{{ $cliente->nombre }}</option>
-
+                                <option value="{{ $cliente->id }}">{{ $cliente->nombre }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -44,7 +45,6 @@
 
                     <div id="producto_cantidades" class="mb-3"></div> <!-- Contenedor para las cantidades -->
 
-
                     <div class="form-group">
                         <label for="subtotal">Subtotal:</label>
                         <input type="number" class="form-control" id="subtotal" name="subtotal" step="0.01" required readonly>
@@ -60,18 +60,15 @@
                         <input type="date" class="form-control" id="fecha" name="fecha" required>
                     </div>
 
-
                     <div class="form-group">
                         <label for="validez">Validez:</label>
                         <input type="date" class="form-control" id="validez" name="validez" required>
                     </div>
 
-
                     <div class="form-group">
                         <label for="condiciones_pago">Condiciones de Pago:</label>
                         <input type="text" class="form-control" id="condiciones_pago" name="condiciones_pago" required>
                     </div>
-
 
                     <button type="submit" class="btn btn-success btn-block">Enviar</button>
                 </form>

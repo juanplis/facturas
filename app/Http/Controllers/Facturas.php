@@ -64,7 +64,7 @@ public function index()
 
 
 
-    public function buscar(Request $request)
+    public function buscar(Request $request, $id)
 {
     // Obtener todos los clientes
     $clientes = Clientes::all(); // Cambié $cliente a $clientes para mayor claridad
@@ -72,8 +72,14 @@ public function index()
     // Obtener productos
     $inventarios = Inventario::all(); // Cambié $inventario a $inventarios para mayor claridad
 
-    // Retornar la vista con los datos necesarios
-    return view('factura.presupuesto', compact('clientes', 'inventarios'));
+    // Obtener el ID enviado
+
+
+    // Obtener empresas que coincidan con el ID recibido
+    $empresas = Empresa::where('id', $id)->get();
+
+    // Retornar la vista con los datos necesarios, incluyendo el ID y las empresas
+    return view('factura.presupuesto', compact('clientes', 'inventarios', 'empresas', 'id'));
 }
 
 public function cargar(request $request)
