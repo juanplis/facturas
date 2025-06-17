@@ -6,19 +6,16 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    @include('menu') {{-- Asumo que tienes un archivo 'menu.blade.php' --}}
+    @include('menu')
     <title>Editar Producto de Inventario</title>
 </head>
 <body>
     <div class="container mt-5">
         <h1>Editar Producto</h1>
 
-        {{-- Formulario para la edición del producto --}}
-        {{-- action apunta a la ruta 'inventario.update' y le pasa el ID del producto --}}
-        {{-- method="POST" es necesario, y @method('PUT') para indicar que es una actualización --}}
         <form action="{{ route('inventario.update', $inventario->id) }}" method="POST">
-            @csrf {{-- Token CSRF para protección contra ataques --}}
-            @method('PUT') {{-- Directiva para indicar que esta es una solicitud PUT para actualización --}}
+            @csrf
+            @method('PUT')
 
             <div class="form-group">
                 <label for="codigo">Código:</label>
@@ -42,6 +39,7 @@
                 @error('precio_unitario')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
+                <small id="precio_unitario_descuento" class="form-text text-muted"></small>
             </div>
 
             <div class="form-group">
@@ -50,6 +48,7 @@
                 @error('precio_cocina')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
+                <small id="precio_cocina_descuento" class="form-text text-muted"></small>
             </div>
 
             <div class="form-group">
@@ -58,6 +57,19 @@
                 @error('costo')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
+            </div>
+
+            <div class="form-group">
+                <label for="descuento">Aplicar Descuento (%):</label>
+                <select class="form-control" id="descuento" name="descuento">
+                    <option value="0">Sin descuento</option>
+                    <option value="5">5%</option>
+                    <option value="10">10%</option>
+                    <option value="15">15%</option>
+                    <option value="20">20%</option>
+                    <option value="25">25%</option>
+                    <option value="30">30%</option>
+                </select>
             </div>
 
             <div class="form-group">
@@ -102,5 +114,44 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const precioUnitarioInput = document.getElementById('precio_unitario');
+            const precioCocinaInput = document.getElementById('precio_cocina');
+            const descuentoSelect = document.getElementById('descuento');
+            const precioUnitarioDescuentoText = document.getElementById('precio_unitario_descuento');
+            const precioCocinaDescuentoText = document.getElementById('precio_cocina_descuento');
+
+            // Función para calcular y mostrar los precios con descuento
+            function calcularPreciosConDescuento() {
+                const precioUnitarioOriginal = parseFloat(precioUnitarioInput.value);
+                const precioCocinaOriginal = parseFloat(precioCocinaInput.value);
+                const descuentoPorcentaje = parseFloat(descuentoSelect.value);
+
+                if (!isNaN(precioUnitarioOriginal) && precioUnitarioOriginal >= 0) {
+                    const precioConDescuentoUnitario = precioUnitarioOriginal * (1 - (descuentoPorcentaje / 100));
+                    precioUnitarioDescuentoText.textContent = `Con ${descuentoPorcentaje}% de descuento: $${precioConDescuentoUnitario.toFixed(2)}`;
+                } else {
+                    precioUnitarioDescuentoText.textContent = '';
+                }
+
+                if (!isNaN(precioCocinaOriginal) && precioCocinaOriginal >= 0) {
+                    const precioConDescuentoCocina = precioCocinaOriginal * (1 - (descuentoPorcentaje / 100));
+                    precioCocinaDescuentoText.textContent = `Con ${descuentoPorcentaje}% de descuento: $${precioConDescuentoCocina.toFixed(2)}`;
+                } else {
+                    precioCocinaDescuentoText.textContent = '';
+                }
+            }
+
+            // Escuchar cambios en los inputs de precio y el selector de descuento
+            precioUnitarioInput.addEventListener('input', calcularPreciosConDescuento);
+            precioCocinaInput.addEventListener('input', calcularPreciosConDescuento);
+            descuentoSelect.addEventListener('change', calcularPreciosConDescuento);
+
+            // Calcular los precios con descuento al cargar la página si ya hay valores
+            calcularPreciosConDescuento();
+        });
+    </script>
 </body>
 </html>

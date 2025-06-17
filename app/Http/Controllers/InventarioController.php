@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Inventario; // Asumo que este es tu modelo principal para la tabla 'inventario'
+use App\Models\Inventario;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule; // Necesario para la validación 'unique' si la usas
+use Illuminate\Validation\Rule;
 
 class InventarioController extends Controller
 {
@@ -58,9 +58,8 @@ class InventarioController extends Controller
     public function update(Request $request, Inventario $inventario)
     {
         // Define las reglas de validación para los campos del formulario.
-        // Asegúrate de que 'codigo' sea único, pero ignorando el registro actual.
         $request->validate([
-                 'codigo' => [
+            'codigo' => [
                 'required',
                 'string',
                 'max:255',
@@ -70,14 +69,25 @@ class InventarioController extends Controller
             'precio_unitario' => 'required|numeric|min:0',
             'precio_cocina' => 'required|numeric|min:0',
             'costo' => 'required|numeric|min:0',
+            'descuento' => 'nullable|numeric|in:0,5,10,15,20,25,30', // Regla de validación para el descuento
             'concepto_general' => 'nullable|string|max:255',
             'version' => 'nullable|string|max:255',
             'dimensiones' => 'nullable|string|max:255',
             'detalles' => 'nullable|string',
         ]);
 
-        // Actualiza el producto de inventario con los datos validados de la solicitud.
-        $inventario->update($request->all());
+        // Obtener los datos validados
+        $data = $request->all();
+
+        // Aplicar descuento si se seleccionó uno
+        if (isset($data['descuento']) && $data['descuento'] > 0) {
+            $descuentoPorcentaje = $data['descuento'] / 100;
+            $data['precio_unitario'] = $data['precio_unitario'] * (1 - $descuentoPorcentaje);
+            $data['precio_cocina'] = $data['precio_cocina'] * (1 - $descuentoPorcentaje);
+        }
+
+        // Actualiza el producto de inventario con los datos validados (y con descuento si aplica)
+        $inventario->update($data);
 
         // Redirige al usuario de vuelta a la página principal del inventario con un mensaje de éxito.
         return redirect()->route('inventario.index')->with('success', 'Producto de inventario actualizado exitosamente.');
