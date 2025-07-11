@@ -24,10 +24,12 @@ class Inventario extends Model
         'descripcion',
         'precio_steel',
         'precio_tu_cocina',
-        'costos',
+        'costo',
         'concepto_general',
         'version',
         'dimensiones',
-        'detalles'
+        'detalles',
+        'cantidad_stock', // Añadir esta línea
+        'proveedor_id'    // Añadir esta línea
     ];
 }
