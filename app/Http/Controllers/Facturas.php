@@ -64,7 +64,7 @@ public function index()
 
 
 
-    public function buscar(Request $request, $id)
+   public function buscar(Request $request, $id, $nombre)
 {
     // Obtener todos los clientes
     $clientes = Clientes::all(); // Cambié $cliente a $clientes para mayor claridad
@@ -73,19 +73,18 @@ public function index()
     $inventarios = Inventario::all(); // Cambié $inventario a $inventarios para mayor claridad
 
     // Buscar la empresa por ID
-     // Obtener empresas que coincidan con el ID recibido
+    // Obtener empresas que coincidan con el ID recibido
     $empresas = Empresa::where('id', $id)->get();
 
-    // Retornar la vista con los datos necesarios, incluyendo el ID y las empresas
-
     // Verificar si se encontró la empresa
-    if (!$empresas) {
+    if ($empresas->isEmpty()) {
         return redirect()->back()->withErrors(['error' => 'Empresa no encontrada.']);
     }
 
     // Retornar la vista con los datos necesarios
     return view('factura.presupuesto', compact('clientes', 'inventarios', 'empresas'));
 }
+
 
 /*public function cargar(request $request)
 {
