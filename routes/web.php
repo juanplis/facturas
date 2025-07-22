@@ -8,6 +8,10 @@ use App\Http\Controllers\ListaController;
 use App\Http\Controllers\PresupuestoController;
 use App\Http\Controllers\ContactoController;
 use App\Http\Controllers\InventarioController;
+Route::get('/', function () {
+    return view('welcome');
+});
+
 
 // Ruta para acceder al método index del controlador Facturas
 Route::get('/login', [Facturas::class, 'login'])->name('welcome');
