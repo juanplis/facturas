@@ -2,9 +2,15 @@
 /node_modules
 /public/build
 /public/hot
+<<<<<<< HEAD
 public/storage
 storage/.key
 storage/pail
+=======
+#public/storage
+#pstorage/*.key
+#pstorage/pail
+>>>>>>> af6a6b2bb3c64cc0a4298838de17384031f0b6d0
 vendor
 .env
 .env.backup
