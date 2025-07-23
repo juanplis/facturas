@@ -64,7 +64,7 @@ public function index()
 
 
 
-   public function buscar(Request $request, $id, $nombre)
+   public function buscar(Request $request, $id)
 {
     // Obtener todos los clientes
     $clientes = Clientes::all(); // Cambié $cliente a $clientes para mayor claridad

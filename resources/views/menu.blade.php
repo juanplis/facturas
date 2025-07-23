@@ -28,5 +28,5 @@
     <a href="{{ route('user.index') }}">cliente</a>
     <!--a href="#sobre-nosotros">Sobre Nosotros</a>
     <a href=" #contacto">Contacto</a-->
-    <a href="{{ route('welcome') }}">Salir</a-->
+    <a href="{{ route('welcome') }}">Salir</a>
 </div>
