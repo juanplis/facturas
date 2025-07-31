@@ -25,6 +25,7 @@
 <div class="menu">
     <a href="{{ route('factura.index') }}">Inicio</a>
     <a href="{{ route('empresas.index') }}">Empresas</a>
+    <a href="{{ route('tasa_bcv.index') }}">Tasa BCV</a>
     <a href="{{ route('user.index') }}">cliente</a>
     <!--a href="#sobre-nosotros">Sobre Nosotros</a>-->
   <a href="{{ route('inventario.index') }}">Inventario</a>
