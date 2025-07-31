@@ -43,7 +43,9 @@
         <table class="table table-bordered">
             <thead class="thead-light">
                 <tr>
+                    <th>N° Presupuesto</th>
                     <th>Cliente ID</th>
+                    <th>Empresa</th>
                     <th>Fecha</th>
                     <th>Subtotal</th>
                     <th>IVA</th>
@@ -58,7 +60,9 @@
             <tbody>
                 @foreach ($presupuestos as $presupuesto)
                 <tr>
+                    <td>{{ $presupuesto->id }}</td>
                     <td>{{ $presupuesto->cliente_id }}</td>
+                    <td>{{ $presupuesto->empresa_id }}</td>
                     <td>{{ $presupuesto->fecha }}</td>
                     <td>{{ number_format($presupuesto->subtotal, 2, ',', '.') }} </td>
                     <td>{{ number_format($presupuesto->iva, 2, ',', '.') }} </td>
