@@ -55,3 +55,8 @@ Route::get('/estatus-presupuestos/{id}', [EstatusPresupuestoController::class, '
 
 use App\Http\Controllers\EmpresaController;
 Route::resource('empresas', EmpresaController::class);
+
+
+use App\Http\Controllers\TasaBcvController;
+
+Route::resource('tasa_bcv', TasaBcvController::class);
