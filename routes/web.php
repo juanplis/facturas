@@ -43,8 +43,8 @@ Route::delete('/cliente/index/{id}', [ClientesController::class, 'eliminar'])->n
 // Rutas de Presupuestos (PDF)
 Route::get('/presupuesto', [PresupuestoController::class, 'generatePDF2']);
 Route::get('/presupuestos', [PresupuestoController::class, 'index'])->name('presupuestos.index');
-Route::get('/presupuestos/{id}/pdf', [PresupuestoController::class, 'generatePDF'])->name('presupuestos.pdf');
 
+Route::get('/presupuestos/{id}/pdf', [PresupuestoController::class, 'generatePDF'])->name('presupuestos.pdf');
 
 
 use App\Http\Controllers\EstatusPresupuestoController;

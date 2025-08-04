@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Presupuesto;
 use App\Models\Clientes;
 use App\Models\EstatusPresupuesto;
+use App\Models\Empresa; // Asegúrate de que la ruta sea correcta
 
 
 use PDF; // ← Importación añadida
@@ -22,13 +23,32 @@ class PresupuestoController extends Controller
         $presupuesto = Presupuesto::with(['cliente', 'items','contactos','estatus_presupuesto'])
             ->findOrFail($id);
 
+        $empresa = Empresa::with([])
+            ->findOrFail($presupuesto->empresa_id);
 
+
+    // Acceder al campo 'direccion' directamente
+    $direccion = $empresa->direccion;
+    $descripcion = $empresa->descripcion;
+
+/*
         $pdf = PDF::loadView('presupuestos.pdf', compact('presupuesto'))
             ->setPaper('a4', 'portrait')
             ->setOptions(['defaultFont' => 'sans-serif']); // ← Opción recomendada
 
         return $pdf->stream("SSC-{$presupuesto->id}.pdf");
+*/
+    return Pdf::loadView('presupuestos.pdf', [
+        'presupuesto' => $presupuesto,
+        'direccion' => $direccion,
+        'descripcion' => $descripcion
+
+        // Añade otras variables que necesites aquí
+    ])->stream();
+
     }
+
+    /*
     public function generatePDF2()
     {
         $data = [
@@ -55,5 +75,5 @@ class PresupuestoController extends Controller
 
         $pdf = PDF::loadView('presupuesto', $data);
         return $pdf->stream('PRESUPUESTO_661.pdf'); // Cambia a download si deseas descargar
-    }
+    }*/
 }

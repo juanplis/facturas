@@ -13,7 +13,7 @@ class Presupuesto extends Model
 {
      // Especificar los atributos que se pueden asignar masivamente
 
-     protected $table = 'presupuestos';
+    protected $table = 'presupuestos';
     protected $fillable = [
         'cliente_id',         // Agrega este atributo
         'subtotal',
@@ -49,20 +49,20 @@ class Presupuesto extends Model
     {
         return $this->belongsTo(EstatusPresupuesto::class, 'estatus_presupuesto');
     }
-public function estado() // ¡Nuevo nombre!
-{
-    return $this->belongsTo(EstatusPresupuesto::class, 'estatus_presupuesto');
-}
+    public function estado() // ¡Nuevo nombre!
+    {
+        return $this->belongsTo(EstatusPresupuesto::class, 'estatus_presupuesto');
+    }
 
-/**
- * Define la relación: Un presupuesto pertenece a una empresa.
- * El método se llama `empresa` (singular) para que sea accesible como `$presupuesto->empresa`.
- */
-public function empresa(): BelongsTo
-{
-    // 'empresa_id' es la clave foránea en la tabla 'presupuestos'
-    // que referencia a la clave primaria de la tabla 'empresas'
-    return $this->belongsTo(Empresa::class, 'empresa_id');
-}
+    /**
+     * Define la relación: Un presupuesto pertenece a una empresa.
+     * El método se llama `empresa` (singular) para que sea accesible como `$presupuesto->empresa`.
+     */
+    public function empresa(): BelongsTo
+    {
+        // 'empresa_id' es la clave foránea en la tabla 'presupuestos'
+        // que referencia a la clave primaria de la tabla 'empresas'
+        return $this->belongsTo(Empresa::class, 'empresa_id');
+    }
 
 }

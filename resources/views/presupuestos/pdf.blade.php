@@ -17,14 +17,42 @@
 </head>
 <body>
     <!-- SOLUCIÓN CON BASE64 -->
-    <img src="data:image/png;base64,<?php echo base64_encode(file_get_contents(public_path('storage/images/baner_steel.png'))); ?>"
+
+
+    @if($presupuesto->empresa_id == 1) {{-- ¡Ahora es un objeto! --}}
+ <img src="data:image/png;base64,<?php echo base64_encode(file_get_contents(public_path('storage/images/baner_steel.png'))); ?>"
          alt="Banner"
          class="banner">
+    </a>
+
+    @else
+ <img src="data:image/png;base64,<?php echo base64_encode(file_get_contents(public_path('storage/images/banner_tu_cocina.png'))); ?>"
+         alt="Banner"
+         class="banner">
+    @endif
+
+   <table border="0">
+            <tr>
+                <th></th>
+                <td>{{$descripcion}}</td>
+
+            </tr>
+    </table>
+   <table border="0">
+            <tr>
+                <th>{{$direccion}}</th>
+                <td> <p class="text-right">PRESUPUESTO: COT{{ str_pad($presupuesto->id, 5, '0', STR_PAD_LEFT) }}</p>
+
+                  <p class="text-right"> CODIGO CLIENTE: {{ $presupuesto->cliente->id }}</p>
+                </td>
+            </tr>
+    </table>
+
 
     <div class="header">
-
-        <p class="text-right">PRESUPUESTO: COT{{ str_pad($presupuesto->id, 5, '0', STR_PAD_LEFT) }}</p>
-        <p class="text-right"> CODIGO CLIENTE: {{ $presupuesto->cliente->id }}</p>
+        <p></p>
+        <!--p class="text-right">PRESUPUESTO: COT{{ str_pad($presupuesto->id, 5, '0', STR_PAD_LEFT) }}</p>
+        <p class="text-right"> CODIGO CLIENTE: {{ $presupuesto->cliente->id }}</p-->
         <p>CLIENTE: {{ $presupuesto->cliente->nombre }}</p>
         <p class="text-right">N° RIF: {{ $presupuesto->cliente->rif }}</p>
 
