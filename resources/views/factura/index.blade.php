@@ -37,7 +37,7 @@
 <body>
     <div class="container mt-5">
         <h1>Lista de Presupuestos</h1>
-     <a href="{{ route('buscar', ['id' => 1]) }}" class="btn btn-primary mb-3">Crear Presupuesto (STELL)</a>
+    <a href="{{ route('buscar', ['id' => 1]) }}" class="btn btn-primary mb-3">Crear Presupuesto (STELL)</a>
     <a href="{{ route('buscar', ['id' => 2]) }}" class="btn btn-primary mb-3">Crear Presupuesto (TuCocina)</a>
 
         <table class="table table-bordered">
@@ -61,8 +61,8 @@
                 @foreach ($presupuestos as $presupuesto)
                 <tr>
                     <td>{{ $presupuesto->id }}</td>
-                    <td>{{ $presupuesto->cliente_id }}</td>
-                    <td>{{ $presupuesto->empresa_id }}</td>
+                    <td>{{ $presupuesto->cliente->nombre}}</td>
+                    <td>{{ $presupuesto->empresa->razon_social }}</td>
                     <td>{{ $presupuesto->fecha }}</td>
                     <td>{{ number_format($presupuesto->subtotal, 2, ',', '.') }} </td>
                     <td>{{ number_format($presupuesto->iva, 2, ',', '.') }} </td>

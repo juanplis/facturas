@@ -85,8 +85,16 @@
                 <td>{{ $item->codigo }}</td>
                 <td>{{ $item->descripcion }}</td>
                 <td>{{ $item->cantidad }}</td>
+
+
+    @if($presupuesto->empresa_id == 1) {{-- ¡Ahora es un objeto! --}}
                 <td class="text-right">${{ number_format($item->precio_unitario, 2) }}</td>
                 <td class="text-right">${{ number_format($item->precio_total, 2) }}</td>
+    @else
+                <td class="text-right">${{ number_format($item->precio_unitario / 0.7 , 2) }}</td>
+                <td class="text-right">${{ number_format($item->precio_total / 0.7 , 2) }}</td>
+
+    @endif
             </tr>
             @endforeach
         </tbody>
@@ -102,10 +110,20 @@
         </br>
 
     <div class="totals">
+
+
+          @if($presupuesto->empresa_id == 1) {{-- ¡Ahora es un objeto! --}}
         <p class="text-right">SUB-TOTAL USD: ${{ number_format($presupuesto->subtotal - $presupuesto->subtotal  * $presupuesto->iva / 100, 2) }}</p>
         <p class="text-right">IVA: 16% ${{ number_format($presupuesto->subtotal * $presupuesto->iva / 100, 2) }}</p>
         <p class="text-right">Descuento: ${{ number_format($presupuesto->descuento ?? 0, 2) }}</p>
         <p class="text-right">TOTAL USD: ${{ number_format($presupuesto->total, 2) }}</p>
+          @else
+        <p class="text-right">SUB-TOTAL USD: ${{ number_format($presupuesto->subtotal - $presupuesto->subtotal  * $presupuesto->iva / 100, 2 ) }}</p>
+        <p class="text-right">IVA: 16% ${{ number_format($presupuesto->subtotal * $presupuesto->iva / 100, 2) }}</p>
+        <p class="text-right">Descuento: ${{ number_format($presupuesto->descuento ?? 0, 2) }}</p>
+        <p class="text-right">TOTAL USD: ${{ number_format($presupuesto->total, 2) }}</p>
+         @endif
+
     </div>
 </body>
 </html>

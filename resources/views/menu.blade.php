@@ -10,7 +10,7 @@
         display: flex;
         justify-content: space-around;
         padding: 10px 0;
-    }
+    }     
     .menu a {
         color: red;
         text-decoration: none;
