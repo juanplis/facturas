@@ -6,7 +6,8 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
- @include('menu')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    @include('menu')
     <title>Inventario</title>
     <style>
         /* Estilo para filas alternas */
@@ -74,6 +75,13 @@
             </a>
         </div>
 
+        <div>
+            <h1>Ajuste de precio</h1>
+            <input type="text" placeholder="Porcentaje de aumento" name="aumento" id="aumento">
+            <button onclick="actualizarPrecios()">Actualizar</button>
+        </div>
+        <br>
+
         {{-- Tabla de inventario --}}
         <div class="table-responsive">
             <table class="table table-bordered table-hover">
@@ -81,8 +89,7 @@
                     <tr>
                         <th>Código</th>
                         <th>Descripción</th>
-                        <th>Precio Steel</th>
-                        <th>Precio Tu Cocina</th>
+                        <th>Precio Unitario</th>
                         <th>Costo</th>
                         <th>Concepto General</th>
                         <th>Versión</th>
@@ -96,8 +103,7 @@
                     <tr>
                         <td>{{ $inventario->codigo }}</td>
                         <td>{{ $inventario->descripcion }}</td>
-                        <td>{{ $inventario->precio_steel }}</td>
-                        <td>{{ $inventario->precio_tu_cocina }}</td>
+                        <td class="precio-unitario">{{ $inventario->precio_unitario }}</td>
                         <td>{{ $inventario->costo }}</td>
                         <td>{{ $inventario->concepto_general }}</td>
                         <td>{{ $inventario->version }}</td>
@@ -120,7 +126,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="10" class="text-center">No hay productos en el inventario.</td> {{-- Colspan ajustado --}}
+                        <td colspan="9" class="text-center">No hay productos en el inventario.</td> {{-- Colspan ajustado --}}
                     </tr>
                     @endforelse
                 </tbody>
@@ -137,5 +143,43 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        function actualizarPrecios() {
+            // Obtener el porcentaje de aumento
+            const porcentajeAumento = parseFloat(document.getElementById('aumento').value);
+
+            // Verificar que el porcentaje sea un número válido
+            if (isNaN(porcentajeAumento)) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Por favor, introduce un monto.',
+                });
+                return;
+            }
+
+            // Obtener todas las celdas de precios unitarios
+            const preciosUnitarios = document.querySelectorAll('.precio-unitario');
+
+            // Calcular y actualizar el precio de cada producto
+            preciosUnitarios.forEach(precio => {
+                let precioActual = parseFloat(precio.textContent);
+                let nuevoPrecio = precioActual + (precioActual * (porcentajeAumento / 100));
+                precio.textContent = nuevoPrecio.toFixed(2); // Formatear a 2 decimales
+            });
+
+            // Mostrar SweetAlert de confirmación
+            Swal.fire({
+                icon: 'success',
+                title: 'Éxito',
+                text: 'Los precios han sido actualizados correctamente.',
+            });
+
+            // Limpiar el campo de entrada
+            document.getElementById('aumento').value = '';
+        }
+    </script>
 </body>
 </html>
