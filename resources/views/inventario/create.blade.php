@@ -55,20 +55,20 @@
                             value="{{ old('descripcion') }}" required>
                     </div>
                     <div class="form-group">
-                        <label for="precio_steel">Precio Steel:</label>
+                        <label for="precio_unitario">Precio Unitario:</label>
                         <input type="number" step="0.01" class="form-control" id="precio_steel" name="precio_steel"
-                            value="{{ old('precio_steel') }}">
+                            value="{{ old('precio_unitario') }}">
                     </div>
-                    <div class="form-group">
+                   <!-- <div class="form-group">
                         <label for="precio_tu_cocina">Precio Tu Cocina:</label>
                         <input type="number" step="0.01" class="form-control" id="precio_tu_cocina"
-                            name="precio_tu_cocina" value="{{ old('precio_tu_cocina') }}">
+                            name="precio_tu_cocina" value="0">
                     </div>
                     <div class="form-group">
                         <label for="costo">Costo:</label>
                         <input type="number" step="0.01" class="form-control" id="costo" name="costo"
-                            value="{{ old('costo') }}">
-                    </div>
+                            value="">
+                    </div>-->
                     <div class="form-group">
                         <label for="concepto_general">Concepto General:</label>
                         <input type="text" class="form-control" id="concepto_general" name="concepto_general"

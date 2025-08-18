@@ -37,8 +37,8 @@
 <body>
     <div class="container mt-5">
         <h1>Lista de Presupuestos</h1>
-    <a href="{{ route('buscar', ['id' => 1]) }}" class="btn btn-primary mb-3">Crear Presupuesto (STELL)</a>
-    <a href="{{ route('buscar', ['id' => 2]) }}" class="btn btn-primary mb-3">Crear Presupuesto (TuCocina)</a>
+        <a href="{{ route('buscar', ['id' => 1]) }}" class="btn btn-primary mb-3">Crear Presupuesto (STELL)</a>
+        <a href="{{ route('buscar', ['id' => 2]) }}" class="btn btn-primary mb-3">Crear Presupuesto (TuCocina)</a>
 
         <table class="table table-bordered">
             <thead class="thead-light">
@@ -61,7 +61,7 @@
                 @foreach ($presupuestos as $presupuesto)
                 <tr>
                     <td>{{ $presupuesto->id }}</td>
-                    <td>{{ $presupuesto->cliente->nombre}}</td>
+                    <td>{{ $presupuesto->cliente->nombre }}</td>
                     <td>{{ $presupuesto->empresa->razon_social }}</td>
                     <td>{{ $presupuesto->fecha }}</td>
                     <td>{{ number_format($presupuesto->subtotal, 2, ',', '.') }} </td>
@@ -70,16 +70,16 @@
                     <td>{{ $presupuesto->condiciones_pago }}</td>
                     <td>{{ $presupuesto->tiempo_entrega }}</td>
                     <td>{{ $presupuesto->validez }}</td>
-<td>
-    @if($presupuesto->estado) {{-- ¡Ahora es un objeto! --}}
-        <span class="estatus-badge estatus-{{ $presupuesto->estado->estatus ? 'activo' : 'inactivo' }}">
-            {{ $presupuesto->estado->nombre }} {{-- Muestra el nombre --}}
-        </span>
-    @else
-        <span class="text-muted">Estado no disponible</span>
-    @endif
-</td>
-<td>
+                    <td>
+                        @if($presupuesto->estado)
+                            <span class="estatus-badge estatus-{{ $presupuesto->estado->estatus ? 'activo' : 'inactivo' }}">
+                                {{ $presupuesto->estado->nombre }}
+                            </span>
+                        @else
+                            <span class="text-muted">Estado no disponible</span>
+                        @endif
+                    </td>
+                    <td>
                         <a href="{{ route('factura.ver', $presupuesto->id) }}" class="btn btn-info">
                             <i class="fas fa-eye"></i>
                         </a>
@@ -101,6 +101,12 @@
                 @endforeach
             </tbody>
         </table>
+
+        <!-- Paginación -->
+        <div class="d-flex justify-content-center">
+
+            {{ $presupuestos->appends(request()->except('page'))->links('pagination::bootstrap-4') }} <!-- Esto genera los enlaces de paginación -->
+        </div>
     </div>
 
     <!-- Incluir el script de SweetAlert2 -->

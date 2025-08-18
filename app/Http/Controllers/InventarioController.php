@@ -55,9 +55,9 @@ class InventarioController extends Controller
         $request->validate([
             'codigo' => 'required|string|max:255|unique:inventario,codigo',
             'descripcion' => 'required|string|max:255',
-            'precio_steel' => 'nullable|numeric',
-            'precio_tu_cocina' => 'nullable|numeric',
-            'costo' => 'nullable|numeric',
+            'precio_unitario' => 'nullable|numeric',
+        //    'precio_tu_cocina' => 'nullable|numeric',
+        //    'costo' => 'nullable|numeric',
             'concepto_general' => 'nullable|string|max:255',
             'version' => 'nullable|string|max:255',
             'dimensiones' => 'nullable|string|max:255',
@@ -95,7 +95,7 @@ class InventarioController extends Controller
         $request->validate([
             'codigo' => 'required|string|max:255|unique:inventario,codigo,' . $inventario->id,
             'descripcion' => 'required|string|max:255',
-            'precio_steel' => 'nullable|numeric',
+            'precio_unitario' => 'nullable|numeric',
             'precio_tu_cocina' => 'nullable|numeric',
             'costo' => 'nullable|numeric',
             'concepto_general' => 'nullable|string|max:255',

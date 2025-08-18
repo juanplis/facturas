@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editar Presupuesto</title>
-    <!-- Enlace a Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <!-- Enlace a Select2 CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
 </head>
 <body>
@@ -32,17 +30,25 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="producto_id">Selecciona productos:</label>
-                        <select name="producto_id[]" id="producto_id" class="form-control" multiple required>
+                        <label for="descripcion">Selecciona productos:</label>
+                        <select name="descripcion[]" id="producto_id" class="form-control" multiple required>
                             @foreach($productos as $producto)
-                                <option value="{{ $producto->id }}" data-precio="{{ $producto->precio_unitario }}" data-descripcion="{{ $producto->descripcion }}" {{ in_array($producto->id, $presupuesto->items->pluck('id')->toArray()) ? 'selected' : '' }}>
+                                <option value="{{ $producto->id }}" data-precio="{{ $producto->precio_unitario }}" data-descripcion="{{ $producto->descripcion }}" {{ in_array($producto->id, $presupuesto->items->pluck('codigo')->toArray()) ? 'selected' : '' }}>
                                     {{ $producto->descripcion }}
                                 </option>
                             @endforeach
                         </select>
                     </div>
 
-                    <div id="producto_cantidades" class="mb-3"></div> <!-- Contenedor para las cantidades -->
+                    <div id="producto_cantidades" class="mb-3">
+                        @foreach($presupuesto->items as $item)
+                            <div class="form-group">
+                                <label for="cantidad_{{ $item->codigo }}">Cantidad del producto {{ $item->descripcion }}:</label>
+                                <input type="number" class="form-control" id="cantidad_{{ $item->codigo }}" name="cantidad[{{ $item->codigo }}]" min="1" value="{{ $item->cantidad }}" required oninput="calcularTotales()">
+                                <small>Precio: ${{ $item->precio_unitario }}</small>
+                            </div>
+                        @endforeach
+                    </div>
 
                     <div class="form-group">
                         <label for="subtotal">Subtotal:</label>
@@ -69,44 +75,23 @@
                         <input type="text" class="form-control" id="condiciones_pago" name="condiciones_pago" value="{{ $presupuesto->condiciones_pago }}" required>
                     </div>
 
+                    <input type="hidden" name="empresa_id" value="{{ $presupuesto->empresa_id }}"> <!-- Campo oculto para empresa_id -->
+
                     <button type="submit" class="btn btn-success btn-block">Actualizar</button>
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- Enlace a Bootstrap JS y dependencias -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <!-- Enlace a Select2 JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
     <script>
     $(document).ready(function() {
         $('#producto_id').select2({
             placeholder: "Selecciona productos",
             allowClear: true
-        });
-
-        // Manejar la selección de productos y agregar campos de cantidad
-        $('#producto_id').on('change', function() {
-            const selectedOptions = $(this).val();
-            const container = $('#producto_cantidades');
-            container.empty(); // Limpiar contenedor antes de agregar nuevos campos
-
-            selectedOptions.forEach(function(productId) {
-                const productDescription = $('#producto_id option[value=' + productId + ']').data('descripcion');
-                const productPrice = $('#producto_id option[value=' + productId + ']').data('precio');
-                const cantidad = '{{ json_encode($presupuesto->items->pluck("pivot.cantidad", "id")->toArray()) }}'[productId] || 1; // Asignar cantidad existente o 1
-
-                container.append(`
-                    <div class="form-group">
-                        <label for="cantidad_${productId}">Cantidad del producto ${productDescription}:</label>
-                        <input type="number" class="form-control" id="cantidad_${productId}" name="cantidad[${productId}]" min="1" value="${cantidad}" required oninput="calcularTotales()">
-                        <small>Precio: $${productPrice}</small>
-                    </div>
-                `);
-            });
         });
     });
 

@@ -84,20 +84,21 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <!-- Enlace a Select2 JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-    <script>
-    $(document).ready(function() {
-        $('#descripcion').select2({
-            placeholder: "Selecciona productos",
-            allowClear: true
-        });
+   <script>
+$(document).ready(function() {
+    $('#descripcion').select2({
+        placeholder: "Selecciona productos",
+        allowClear: true
+    });
 
-        // Manejar la selección de productos y agregar campos de cantidad
-        $('#descripcion').on('change', function() {
-            const selectedOptions = $(this).val();
-            const container = $('#producto_cantidades');
-            container.empty(); // Limpiar contenedor antes de agregar nuevos campos
+    // Manejar la selección de productos y agregar campos de cantidad
+    $('#descripcion').on('change', function() {
+        const selectedOptions = $(this).val();
+        const container = $('#producto_cantidades');
 
-            selectedOptions.forEach(function(productId) {
+        selectedOptions.forEach(function(productId) {
+            // Verificar si el campo de cantidad ya existe
+            if (!$(`#cantidad_${productId}`).length) {
                 const productDescription = $('#descripcion option[value=' + productId + ']').data('descripcion');
                 const productPrice = $('#descripcion option[value=' + productId + ']').data('precio');
                 container.append(`
@@ -107,23 +108,22 @@
                         <small>Precio: $${productPrice}</small>
                     </div>
                 `);
-            });
+            }
         });
     });
+});
 
-    function calcularTotales() {
-        let subtotal = 0;
-        const selectedProducts = $('#descripcion').val();
+function calcularTotales() {
+    let subtotal = 0;
+    const selectedProducts = $('#descripcion').val();
 
-        selectedProducts.forEach(function(productId) {
-            const cantidad = parseInt($(`#cantidad_${productId}`).val()) || 0;
-            const precio = parseFloat($(`#descripcion option[value=${productId}]`).data('precio')) || 0;
-            subtotal += cantidad * precio;
-        });
+    selectedProducts.forEach(function(productId) {
+        const cantidad = parseInt($(`#cantidad_${productId}`).val()) || 0;
+        const precio = parseFloat($(`#descripcion option[value=${productId}]`).data('precio')) || 0;
+        subtotal += cantidad * precio;
+    });
 
-        $('#subtotal').val(subtotal.toFixed(2));
-        $('#total').val(subtotal.toFixed(2)); // Total sin impuestos por ahora
-    }
-    </script>
-</body>
-</html>
+    $('#subtotal').val(subtotal.toFixed(2));
+    $('#total').val(subtotal.toFixed(2)); // Total sin impuestos por ahora
+}
+</script>

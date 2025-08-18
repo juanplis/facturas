@@ -22,8 +22,8 @@ class Inventario extends Model
     protected $fillable = [
         'codigo',
         'descripcion',
-        'precio_steel',
-        'precio_tu_cocina',
+        'precio_unitario',
+        //'precio_tu_cocina',
         'costo',
         'concepto_general',
         'version',

@@ -35,10 +35,11 @@ class Facturas extends Controller{
 }
 public function index()
 {
-    $presupuestos = Presupuesto::with('estado')->get(); // Relación "estado"
+    // Cambia 10 por el número de presupuestos que deseas mostrar por página
+    $presupuestos = Presupuesto::with('estado')->paginate(5);
+
     return view('factura.index', compact('presupuestos'));
 }
-
     public function usuarios(Request $request)
 {
     // Validar los datos de entrada
@@ -293,56 +294,68 @@ public function eliminar($id)
         return view('factura.editar', compact('presupuesto', 'clientes', 'items', 'productos'));
     }
 
- public function update(Request $request, $id)
-    {
-        // Validar los datos
-        $request->validate([
-            'cliente_id' => 'required|integer',
-            'producto_id' => 'required|array',
-            'producto_id.*' => 'required|integer',
-            'cantidad' => 'required|array',
-            'cantidad.*' => 'required|integer|min:1',
-            'subtotal' => 'required|numeric',
-            'total' => 'required|numeric',
-            'fecha' => 'required|date',
-            'validez' => 'nullable|date',
-            'condiciones_pago' => 'nullable|string',
-        ]);
+public function update(Request $request, $id)
+{
+    // 1. Validar los datos recibidos
+    $request->validate([
+        'cliente_id' => 'required|integer',
+        'fecha' => 'required|date',
+        'subtotal' => 'required|numeric',
+        'total' => 'required|numeric',
+        'condiciones_pago' => 'nullable|string',
+        'validez' => 'nullable|date',
+        'descripcion' => 'required|array', // Array de IDs de productos
+        'cantidad' => 'required|array',     // Array asociativo de cantidades
+        'empresa_id' => 'required|integer'  // Validar el campo oculto de la empresa
+    ]);
 
-        // Cargar el presupuesto
-        $presupuesto = Presupuesto::find($id);
-        if (!$presupuesto) {
-            return redirect()->route('factura.index')->with('error', 'Presupuesto no encontrado.');
+    // 2. Encontrar el presupuesto existente
+    $presupuesto = Presupuesto::findOrFail($id);
+
+    // 3. Actualizar los datos del presupuesto
+    $presupuesto->update([
+        'cliente_id' => $request->cliente_id,
+        'fecha' => $request->fecha,
+        'subtotal' => $request->subtotal,
+        'total' => $request->total,
+        'condiciones_pago' => $request->condiciones_pago ?: null,
+        'validez' => $request->validez ?: null,
+        'empresa_id' => $request->empresa_id,
+        'status' => 1 // Mantener el estado en 1
+    ]);
+
+    // 4. Actualizar los ítems asociados a este presupuesto
+    $presupuesto->items()->delete(); // Eliminar los ítems existentes
+
+    foreach ($request->descripcion as $index => $descripcionid) {
+        $cantidad = $request->cantidad[$descripcionid];
+
+        // Obtener el precio unitario del inventario
+        $inventarioItem = Inventario::find($descripcionid);
+        if (!$inventarioItem) {
+            return redirect()->back()->withErrors(['error' => "El producto con ID {$descripcionid} no fue encontrado."]);
         }
+        $preciounitario = $inventarioItem->precio_unitario;
+        $preciototal = $cantidad * $preciounitario;
 
-        // Actualizar los datos del presupuesto
-        $presupuesto->update([
-            'cliente_id' => $request->cliente_id,
-            'subtotal' => $request->subtotal,
-            'total' => $request->total,
-            'fecha' => $request->fecha,
-            'validez' => $request->validez,
-            'condiciones_pago' => $request->condiciones_pago,
+        Items::create([
+            'presupuesto_id' => $presupuesto->id,
+            'codigo' => $descripcionid,
+            'descripcion' => $inventarioItem->descripcion,
+            'cantidad' => $cantidad,
+            'precio_unitario' => $preciounitario,
+            'precio_total' => $preciototal
         ]);
-
-        // Eliminar los ítems existentes
-        $presupuesto->items()->delete(); // Cambiar detach() por delete()
-
-        // Agregar nuevos ítems
-        foreach ($request->producto_id as $productoId) {
-            $cantidad = $request->cantidad[$productoId];
-            $precioUnitario = Inventario::find($productoId)->precio_unitario;
-            $precioTotal = $cantidad * $precioUnitario;
-
-            // Crear los nuevos ítems
-            $presupuesto->items()->create([
-                'codigo' => $productoId,
-                'cantidad' => $cantidad,
-                'precio_unitario' => $precioUnitario,
-                'precio_total' => $precioTotal,
-            ]);
-        }
-
-        return redirect()->route('factura.index')->with('success', 'Presupuesto actualizado correctamente.');
     }
+
+    // 5. Cargar los ítems recién creados para mostrarlos en la vista de confirmación
+    $presupuesto->load(['items', 'cliente', 'empresa']);
+
+    // 6. Retornar la vista con los datos del presupuesto y sus ítems
+    return view('factura.cargar', [
+        'presupuesto' => $presupuesto,
+        'items' => $presupuesto->items
+    ])->with('success', 'Presupuesto actualizado con éxito.');
 }
+
+ }

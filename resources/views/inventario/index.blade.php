@@ -111,15 +111,15 @@
                         <td>{{ $inventario->detalles }}</td>
                         <td>
                             {{-- Botón de Editar --}}
-                            <a href="{{ route('inventario.edit', $inventario->id) }}" class="btn btn-warning btn-sm">
-                                <i class="fas fa-edit"></i> Editar
+                            <a href="{{ route('inventario.edit', $inventario->id) }}" class="btn btn-primary btn-sm">
+                                <i class="fas fa-pencil-alt"></i>
                             </a>
                             {{-- Botón de Eliminar (con formulario para método DELETE) --}}
                             <form action="{{ route('inventario.destroy', $inventario->id) }}" method="POST" style="display:inline-block;">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Estás seguro de que quieres eliminar este producto?');">
-                                    <i class="fas fa-trash-alt"></i> Eliminar
+                                    <i class="fas fa-trash-alt"></i>
                                 </button>
                             </form>
                         </td>
