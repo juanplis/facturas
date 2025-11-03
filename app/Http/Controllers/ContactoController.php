@@ -14,6 +14,7 @@ class ContactoController extends Controller
             'telefono_contacto' => 'required',
             'correo_contacto' => 'required|email',
             'cliente_id' => 'required|exists:clientes,id',
+
         ]);
 
         $contacto = Contacto::create([

@@ -4,31 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Formulario de Presupuestos</title>
-    <!-- Enlace a Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <!-- Enlace a Select2 CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
 </head>
 <body>
     @include('menu')
 
+    <div class="card">
+        <div class="card-body">
+            <form action="{{ route('factura.carga') }}" method="POST">
+                @csrf <!-- Protección contra CSRF -->
+                <div class="container mt-5">
+                    @foreach($empresas as $empresa)
+                        <h3>Formulario de Presupuestos: {{ $empresa->razon_social }}</h3>
+                        <input type="hidden" id="empresa_id" name="empresa_id" value="{{ $empresa->id }}">
+                    @endforeach
 
-
-        <div class="card">
-            <div class="card-body">
-                <form action="{{ route('factura.carga') }}" method="POST">
-                    @csrf <!-- Protección contra CSRF -->
-
-                        <div class="container mt-5">
-        @foreach($empresas as $empresa)
-            <h1 class="text-center">Formulario de Presupuestos: {{ $empresa->razon_social }}</h1>
-            <input type="hidden" name="empresa_id" value="{{ $empresa->id }}"> <!-- Campo oculto para el ID de la empresa -->
-        @endforeach
-
-
+                  <div class="form-group">
+                        <label for="correlativo">Correlativo:</label>
+                        <input type="text" class="form-control" id="correlativo" name="correlativo" value="{{ $correlativo }}" readonly>
+                    </div>
+                  
+                  
+                  
                     <div class="form-group">
                         <label for="cliente_id">Selecciona un cliente:</label>
-                        <select class="form-control" id="cliente_id" name="cliente_id" required>
+                        <select class="form-control" id="cliente_id" name="cliente_id"  required>
                             <option value="">Seleccione un cliente</option>
                             @foreach($clientes as $cliente)
                                 <option value="{{ $cliente->id }}">{{ $cliente->nombre }}</option>
@@ -40,17 +41,24 @@
                         <label for="descripcion">Selecciona productos:</label>
                         <select class="form-control" id="descripcion" name="descripcion[]" multiple required>
                             <option value="">Seleccione productos</option>
-                            @foreach($inventarios as $inventario)
-                                <option value="{{ $inventario->id }}" data-precio="{{ $inventario->precio_unitario }}" data-descripcion="{{ $inventario->descripcion }}">{{ $inventario->descripcion }}</option>
-                            @endforeach
                         </select>
                     </div>
-
+					
                     <div id="producto_cantidades" class="mb-3"></div> <!-- Contenedor para las cantidades -->
 
                     <div class="form-group">
                         <label for="subtotal">Subtotal:</label>
                         <input type="number" class="form-control" id="subtotal" name="subtotal" step="0.01" required readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="iva">IVA (%):</label>
+                        <input type="number" class="form-control" id="iva" name="iva" step="0.01" value="16" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="descuento">Descuento (%):</label>
+                        <input type="number" class="form-control" id="descuento" name="descuento" step="0.01" value="0" oninput="calcularTotales()">
                     </div>
 
                     <div class="form-group">
@@ -74,56 +82,148 @@
                     </div>
 
                     <button type="submit" class="btn btn-success btn-block">Enviar</button>
-                </form>
-            </div>
+                </div>
+            </form>
         </div>
     </div>
-    <!-- Enlace a Bootstrap JS y dependencias -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <!-- Enlace a Select2 JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-   <script>
+    
+<!-- Enlace a Bootstrap JS y dependencias -->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+
+<script>
 $(document).ready(function() {
     $('#descripcion').select2({
         placeholder: "Selecciona productos",
-        allowClear: true
+        allowClear: true,
+        ajax: {
+            url: '/api/productos', // Cambia esta URL a tu endpoint
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return {
+                    q: params.term, // Término de búsqueda
+                    page: params.page || 1 // Página actual para paginación
+                };
+            },
+            processResults: function (data, params) {
+                params.page = params.page || 1;
+
+                return {
+                    results: data.items.map(item => ({
+                        id: item.id,
+                        text: `${item.codigo} - ${item.descripcion}`,
+                        precio_unitario: item.precio_unitario // Asegúrate de que tu respuesta tenga esta estructura
+                    })),
+                    pagination: {
+                        more: data.pagination.has_more // Indica si hay más resultados
+                    }
+                };
+            },
+            cache: false
+        },
+        minimumInputLength: 1, // Mínimo de caracteres para iniciar la búsqueda
+        language: {
+            inputTooShort: function () {
+                //return "Introduce más caracteres"; // Mensaje en español
+	           return	"Por favor, introduzca el nombre, código o descripción del producto.";
+            },
+            // Puedes añadir otros mensajes en español si lo deseas
+        }
     });
 
-    // Manejar la selección de productos y agregar campos de cantidad
+    // Al cambiar la selección de productos
     $('#descripcion').on('change', function() {
         const selectedOptions = $(this).val();
         const container = $('#producto_cantidades');
 
-        selectedOptions.forEach(function(productId) {
-            // Verificar si el campo de cantidad ya existe
-            if (!$(`#cantidad_${productId}`).length) {
-                const productDescription = $('#descripcion option[value=' + productId + ']').data('descripcion');
-                const productPrice = $('#descripcion option[value=' + productId + ']').data('precio');
-                container.append(`
-                    <div class="form-group">
-                        <label for="cantidad_${productId}">Cantidad del producto ${productDescription}:</label>
-                        <input type="number" class="form-control" id="cantidad_${productId}" name="cantidad[${productId}]" min="1" required oninput="calcularTotales()">
-                        <small>Precio: $${productPrice}</small>
-                    </div>
-                `);
-            }
-        });
+        // Limpiar el contenedor antes de agregar nuevos campos
+        container.empty();
+        if (selectedOptions) {
+            selectedOptions.forEach(function(productId) {
+                $.ajax({
+                    url: '/api/productos/' + productId, // Cambia esta URL a tu endpoint para obtener detalles del producto
+                    method: 'GET',
+                    dataType: 'json',
+                    success: function(product) {
+                        let productPrice = product.precio_unitario;
+                        let productDescription = product.descripcion;
+                        let productCode = product.codigo;
+
+                        // Ajuste del precio según el ID de la empresa
+                        let empresa_id = document.getElementById('empresa_id').value;
+
+                        if (empresa_id != 1) {
+                           // productPrice /= 0.57; // Ajusta el precio si es necesario
+                            productPrice /= 0.45; // Ajusta el precio si es necesario
+
+                        } else {
+                            productPrice /= 1;
+                        }
+
+                        // Asegurarse de que el precio tenga solo dos decimales
+                        productPrice = productPrice.toFixed(2);
+                        const cantidadInputId = `cantidad_${productId}`;
+
+                        // Crear el campo de cantidad vacío
+                        container.append(`
+                            <div class="form-group row" id="producto_${productId}">
+                                <label class="col-sm-8 col-form-label">${productCode} - ${productDescription}</label>
+                                <div class="col-sm-4">
+                                    <label for="${cantidadInputId}" class="sr-only">Cantidad:</label>
+                                    <input type="number" class="form-control" id="${cantidadInputId}" name="cantidad[${productId}]" min="0" required oninput="calcularTotales()">
+                                    <small class="precio-producto" data-precio="${productPrice}">Precio: $${productPrice}</small>
+                                </div>
+                            </div>
+                        `);
+                    }
+                });
+            });
+        }
+    });
+
+    // Calcular totales al cambiar las cantidades
+    $('#producto_cantidades').on('input', 'input[type="number"]', function() {
+        calcularTotales();
     });
 });
 
 function calcularTotales() {
     let subtotal = 0;
     const selectedProducts = $('#descripcion').val();
+    const empresa_id = document.getElementById('empresa_id').value;
 
-    selectedProducts.forEach(function(productId) {
-        const cantidad = parseInt($(`#cantidad_${productId}`).val()) || 0;
-        const precio = parseFloat($(`#descripcion option[value=${productId}]`).data('precio')) || 0;
-        subtotal += cantidad * precio;
-    });
+    if (selectedProducts) {
+        selectedProducts.forEach(function(productId) {
+            const cantidad = parseInt($(`#cantidad_${productId}`).val()) || 0;
+            const productPrice = parseFloat($(`#producto_${productId} .precio-producto`).data('precio')) || 0;
 
+            // Ajuste del precio según el ID de la empresa
+            let precioFinal = productPrice;
+
+            // Depuración
+            console.log(`Producto ID: ${productId}, Cantidad: ${cantidad}, Precio: ${productPrice}, Precio Final: ${precioFinal}`);
+
+            // Acumular el subtotal
+            subtotal += cantidad * precioFinal; // Acumular el subtotal
+        });
+    }
+
+    const iva = parseFloat($('#iva').val()) || 0;
+    const descuento = parseFloat($('#descuento').val()) || 0;
+
+    // Calcular el subtotal con descuento
+    const subtotalConDescuento = subtotal - (subtotal * descuento / 100);
+    // Calcular el total incluyendo IVA
+    const total = subtotalConDescuento + (subtotalConDescuento * iva / 100);
+
+    // Actualizar los campos de subtotal y total
     $('#subtotal').val(subtotal.toFixed(2));
-    $('#total').val(subtotal.toFixed(2)); // Total sin impuestos por ahora
+    $('#total').val(total.toFixed(2)); // Total incluyendo IVA
 }
 </script>
+
+</body>
+</html>

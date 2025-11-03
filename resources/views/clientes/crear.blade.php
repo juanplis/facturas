@@ -10,44 +10,54 @@
 </head>
 <body>
     <div class="container mt-5">
-        <h1>Crear Cliente</h1>
+        
 
         <form action="{{ route('user.store') }}" method="POST">
             @csrf
-            <div class="form-group">
+          
+          <div class="row">
+            <div class="col-md-6">
+                <h3>Crear Cliente</h3>
+              <div class="form-group">
                 <label for="nombre">Nombre</label>
-                <input type="text" name="nombre" class="form-control" required>
+                <input type="text" name="nombre" id="name" class="form-control" required>
             </div>
             <div class="form-group">
                 <label for="rif">RIF</label>
-                <input type="text" name="rif" class="form-control" required>
+                <input type="text" name="rif" id="rif" class="form-control" maxlength="11" required>
             </div>
             <div class="form-group">
                 <label for="direccion">Dirección</label>
-                <input type="text" name="direccion" class="form-control" required>
+                <input type="text" name="direccion" id="direccion" class="form-control" required>
             </div>
             <div class="form-group">
                 <label for="telefono">Teléfono</label>
-                <input type="text" name="telefono" class="form-control" required>
+                <input type="text" name="telefono" id="telefono" class="form-control" maxlength="11" onkeypress="return event.charCode>=48 && event.charCode<=57" required>
             </div>
             <div class="form-group">
                 <label for="correo">Correo</label>
-                <input type="email" name="correo" class="form-control" required>
+                <input type="text" name="correo" id="correo" class="form-control" value="sin_correo@gmail.com">
             </div>
-
-            <h2>Contactos (Personas Naturales)</h2>
-            <div class="form-group">
+            </div>
+            <div class="col-md-6">
+                <h3>Contactos (Personas Naturales)</h3>
+                   <div class="form-group">
                 <label for="nombre_contacto">Nombre del Contacto</label>
-                <input type="text" class="form-control" id="nombre_contacto" name="nombre_contacto" required>
+                <input type="text" class="form-control" id="nombre_contacto" name="nombre_contacto" value="S/C">
             </div>
             <div class="form-group">
                 <label for="telefono_contacto">Teléfono del Contacto</label>
-                <input type="text" class="form-control" id="telefono_contacto" name="telefono_contacto" required>
+                <input type="text" class="form-control" id="telefono_contacto" name="telefono_contacto" maxlength="11" onkeypress="return event.charCode>=48 && event.charCode<=57" value="S/T">
             </div>
             <div class="form-group">
                 <label for="correo_contacto">Correo del Contacto</label>
-                <input type="email" class="form-control" id="correo_contacto" name="correo_contacto" required>
+                <input type="text" class="form-control" id="correo_contacto" name="correo_contacto" value="sin_correo@gmail.com">
             </div>
+            </div>
+          </div>
+            
+
+       
 
             <button type="submit" class="btn btn-success">Crear Cliente</button>
         </form>

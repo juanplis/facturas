@@ -64,6 +64,16 @@
                 @enderror
             </div>
 
+          <!-- Correo -->
+            <div>
+                <label for="correo_empresa" class="block text-sm font-medium text-gray-700">Correo *</label>
+                <input type="tel" name="correo_empresa" id="correo_empresa"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                    value="{{ old('correo_empresa') }}" >
+                @error('telefono')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
             <!-- Estatus -->
             <div>
                 <label for="estatus" class="block text-sm font-medium text-gray-700">Estatus</label>

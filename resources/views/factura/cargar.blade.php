@@ -31,7 +31,7 @@
                 <tr>
                     <td>{{ $item->descripcion }}</td>
                     <td>{{ $item->cantidad }}</td>
-                    <td>{{ $item->precio_Unitario }}</td>
+                    <td>{{ $item->precio_Unitario  }}</td>
                     <td>{{ $item->precio_Total }}</td>
                 </tr>
             @endforeach

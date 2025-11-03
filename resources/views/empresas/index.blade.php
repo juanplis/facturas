@@ -8,7 +8,7 @@
     <!-- Enlace a Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     @include('menu')
-    <title>Clientes</title>
+    <title>Empresas</title>
     <style>
         /* Estilo para filas alternas */
         tbody tr:nth-child(odd) {
@@ -24,9 +24,10 @@
    <!--  /* @extends('layouts.app') */ -->
 
 @section('content')
+     <form action="{{ route('empresas.index') }}" method="GET" class="mb-3">
 <div class="container mx-auto px-4 py-8">
     <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold text-gray-800">Gestión de Empresas</h1>
+        <h3 class="text-3xl font-bold text-gray-800">Empresas</h3>
         <a href="{{ route('empresas.create') }}" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
@@ -34,7 +35,12 @@
             Nueva Empresa
         </a>
     </div>
-
+      <div class="input-group">
+                <input type="text" name="search" class="form-control" placeholder="Buscar por Rif o razón social..." value="{{ request('search') }}">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="submit">Buscar</button>
+                </div>
+            </div>
     @if(session('success'))
         <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4" role="alert">
             <p>{{ session('success') }}</p>
@@ -45,9 +51,11 @@
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
                 <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">N°</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Razón Social</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">RIF</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Teléfono</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Correo</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estatus</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
                 </tr>
@@ -55,13 +63,27 @@
             <tbody class="bg-white divide-y divide-gray-200">
                 @forelse($empresas as $empresa)
                 <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">{{ $empresa->id }}</td>
                     <td class="px-6 py-4 whitespace-nowrap">{{ $empresa->razon_social }}</td>
                     <td class="px-6 py-4 whitespace-nowrap">{{ $empresa->rif }}</td>
                     <td class="px-6 py-4 whitespace-nowrap">{{ $empresa->telefono }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">{{ $empresa->correo_empresa }}</td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $empresa->estatus == 'activo' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                        <!--span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $empresa->estatus == 'activo' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
                             {{ ucfirst($empresa->estatus) }}
-                        </span>
+                        </span-->
+                      
+                      @if(isset($empresa) && $empresa->estatus)
+    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $empresa->estatus == '1' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+       Activa
+    </span>
+@else
+    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+       Inactiva
+    </span>
+@endif
+                      
+                      
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         <div class="flex space-x-2">

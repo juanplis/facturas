@@ -21,4 +21,9 @@ class Clientes extends Model
     public function presupuestos() {
         return $this->hasMany(Presupuesto::class, 'cliente_id');
     }
+
+ public function contacto()
+    {
+        return $this->hasOne(Contacto::class, 'cliente_id', 'id'); // Relación uno a uno
+    }
 }

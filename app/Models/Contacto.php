@@ -15,9 +15,16 @@ class Contacto extends Model
         'telefono',
         'correo',
     ];
-
+/*
     public function cliente()
     {
         return $this->belongsTo(Cliente::class);
+    }*/
+  
+  	  public function cliente()
+    {
+        return $this->belongsTo(Clientes::class, 'cliente_id', 'id'); // Relación inversa
     }
+  
+  
 }

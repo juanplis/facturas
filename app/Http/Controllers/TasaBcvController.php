@@ -6,12 +6,28 @@ use Illuminate\Http\Request;
 
 class TasaBcvController extends Controller
 {
-    public function index()
+ /*  
+  public function index()
     {
         $tasa_bcvs = TasaBcv::all();
         return view('tasa_bcv.index', compact('tasa_bcvs'));
     }
+*/
+   public function index(Request $request)
+    {
+        // Obtener el término de búsqueda
+        $search = $request->input('search');
 
+        // Filtrar las tasas según el término de búsqueda
+        $tasa_bcvs = TasaBcv::when($search, function($query) use ($search) {
+            return $query->where('fecha_bcv', 'LIKE', "%{$search}%")
+                         ->orWhere('monto_bcv', 'LIKE', "%{$search}%")
+                         ->orWhere('monto_bcv_euro', 'LIKE', "%{$search}%")
+                         ->orWhere('intervenciones', 'LIKE', "%{$search}%");
+        })->get(); // Puedes cambiar get() por paginate(10) si deseas paginación
+
+        return view('tasa_bcv.index', compact('tasa_bcvs'));
+    }
     public function create()
     {
         return view('tasa_bcv.create');

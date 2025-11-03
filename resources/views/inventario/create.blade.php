@@ -49,14 +49,14 @@
                         <input type="text" class="form-control" id="codigo" name="codigo" value="{{ old('codigo') }}"
                             required>
                     </div>
-                    <div class="form-group">
+                   <div class="form-group">
                         <label for="descripcion">Descripción:</label>
-                        <input type="text" class="form-control" id="descripcion" name="descripcion"
-                            value="{{ old('descripcion') }}" required>
+                        <textarea class="form-control" id="descripcion" name="descripcion" rows="3"
+                        required></textarea>
                     </div>
                     <div class="form-group">
                         <label for="precio_unitario">Precio Unitario:</label>
-                        <input type="number" step="0.01" class="form-control" id="precio_steel" name="precio_steel"
+                        <input type="number" step="0.01" class="form-control" id="precio_unitario" name="precio_unitario"
                             value="{{ old('precio_unitario') }}">
                     </div>
                    <!-- <div class="form-group">

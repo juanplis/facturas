@@ -10,7 +10,7 @@
 </head>
 <body>
     <div class="container mt-5">
-        <h1>Crear Tasa BCV</h1>
+        <h3>Crear Tasa BCV</h3>
     <form action="{{ route('tasa_bcv.store') }}" method="POST">
         @csrf
         <label for="fecha_bcv">Fecha:</label>
@@ -23,7 +23,7 @@
         <input type="number" step="0.01" name="monto_bcv_euro" required>
 
         <label for="intervenciones">Intervenciones:</label>
-        <input type="text" name="intervenciones" required maxlength="30">
+        <input type="number" name="intervenciones" required maxlength="4">
 
         <button type="submit">Guardar</button>
     </form>

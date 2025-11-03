@@ -10,8 +10,7 @@ class Empresa extends Model
     protected $table = 'empresa'; // because the table is not the conventional plural
 
     protected $fillable = [
-        'razon_social', 'rif', 'telefono', 'estatus', 'fecha_registro','direccion','telefono','telefono1'
-    ];
+        'razon_social', 'rif', 'telefono', 'correo_empresa','estatus', 'fecha_registro','direccion','telefono','telefono1'];
 
     // If you want to use timestamps, but the table has 'fecha_registro' instead of 'created_at'
     // We'll disable the default timestamps

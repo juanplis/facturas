@@ -42,7 +42,7 @@
 </head>
 <body>
     <div class="container mt-5">
-        <h1>Inventario</h1>
+        <h3>Inventario</h3>
 
         {{-- Mensajes de éxito --}}
         @if (session('success'))
@@ -50,6 +50,13 @@
                 {{ session('success') }}
             </div>
         @endif
+      
+              {{-- Botón para crear nuevo --}}
+        <div class="mb-3">
+            <a href="{{ route('inventario.create') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Crear Nuevo Producto
+            </a>
+        </div>
 
         {{-- Formulario de búsqueda --}}
         <form action="{{ route('inventario.index') }}" method="GET" class="form-inline search-form">
@@ -68,17 +75,12 @@
             </div>
         </form>
 
-        {{-- Botón para crear nuevo --}}
-        <div class="mb-3">
-            <a href="{{ route('inventario.create') }}" class="btn btn-primary">
-                <i class="fas fa-plus"></i> Crear Nuevo Producto
-            </a>
-        </div>
+
 
         <div>
-            <h1>Ajuste de precio</h1>
-            <input type="text" placeholder="Porcentaje de aumento" name="aumento" id="aumento">
-            <button onclick="actualizarPrecios()">Actualizar</button>
+            <h3>Ajuste de precio</h3>
+            <input type="text" placeholder="Porcentaje de aumento" class="form-control" name="aumento" id="aumento">
+            <button onclick="actualizarPrecios()" class="btn btn-success mb-3">Actualizar</button>
         </div>
         <br>
 
@@ -87,6 +89,7 @@
             <table class="table table-bordered table-hover">
                 <thead class="thead-light">
                     <tr>
+                        <th>N°</th>
                         <th>Código</th>
                         <th>Descripción</th>
                         <th>Precio Unitario</th>
@@ -101,9 +104,10 @@
                 <tbody>
                     @forelse ($inventarios as $inventario)
                     <tr>
+                        <td>{{ $inventario->id }}</td>
                         <td>{{ $inventario->codigo }}</td>
                         <td>{{ $inventario->descripcion }}</td>
-                        <td class="precio-unitario">{{ $inventario->precio_unitario }}</td>
+                        <td class="precio-unitario" data-id="{{ $inventario->id }}">{{ $inventario->precio_unitario }}</td>
                         <td>{{ $inventario->costo }}</td>
                         <td>{{ $inventario->concepto_general }}</td>
                         <td>{{ $inventario->version }}</td>
@@ -147,10 +151,7 @@
 
     <script>
         function actualizarPrecios() {
-            // Obtener el porcentaje de aumento
             const porcentajeAumento = parseFloat(document.getElementById('aumento').value);
-
-            // Verificar que el porcentaje sea un número válido
             if (isNaN(porcentajeAumento)) {
                 Swal.fire({
                     icon: 'error',
@@ -160,26 +161,55 @@
                 return;
             }
 
-            // Obtener todas las celdas de precios unitarios
             const preciosUnitarios = document.querySelectorAll('.precio-unitario');
+            const updatedPrices = [];
 
-            // Calcular y actualizar el precio de cada producto
             preciosUnitarios.forEach(precio => {
                 let precioActual = parseFloat(precio.textContent);
                 let nuevoPrecio = precioActual + (precioActual * (porcentajeAumento / 100));
-                precio.textContent = nuevoPrecio.toFixed(2); // Formatear a 2 decimales
+                precio.textContent = nuevoPrecio.toFixed(2);
+                updatedPrices.push({
+                    id: precio.dataset.id,
+                    nuevoPrecio: nuevoPrecio.toFixed(2)
+                });
             });
 
-            // Mostrar SweetAlert de confirmación
-            Swal.fire({
-                icon: 'success',
-                title: 'Éxito',
-                text: 'Los precios han sido actualizados correctamente.',
+            fetch('{{ route('inventario.actualizar_precios') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ precios: updatedPrices })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Éxito',
+                        text: 'Los precios han sido actualizados correctamente.',
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Hubo un problema al actualizar los precios.',
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Hubo un problema al comunicar con el servidor.',
+                });
             });
 
-            // Limpiar el campo de entrada
             document.getElementById('aumento').value = '';
         }
     </script>
 </body>
 </html>
+

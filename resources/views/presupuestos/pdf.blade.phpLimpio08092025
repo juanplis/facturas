@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Aptos+Narrow:wght@400&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Aptos Narrow', sans-serif; 
+            font-size: 11px; 
+            margin: 10px; 
+            position: relative; /* Permite el uso de posicionamiento absoluto */
+            min-height: 100vh; /* Asegura que el cuerpo tenga al menos la altura de la ventana */
+        }
+        .header, .header2 { 
+            margin-bottom: 0; 
+        }
+        .banner {
+            width: 120%; 
+            height: auto; 
+            display: block; 
+            margin-left: -10%; 
+            margin-right: -25%; 
+            margin-top: -50px; 
+            object-fit: cover; 
+        }
+        .table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin: 0; 
+        }
+        .table th, .table td { 
+            border: 1px solid #000; 
+            padding: 8px; 
+        }
+        .text-right { 
+            text-align: right; 
+        }
+        .mb-4 { 
+            margin-bottom: 1rem; 
+        }
+        .espacio { 
+            height: 20px; 
+            /*  		word-spacing: 10px; /* Aumenta el espacio entre palabras */ 
+
+        }
+        .producto {
+            margin-bottom: 5px; 
+        }
+        .producto strong {
+            display: inline-block;
+            width: 150px; 
+        }
+        .totals {
+            position: absolute; /* Fija la posición en la parte inferior */
+            bottom: 10px; /* Distancia desde la parte inferior */
+            width: calc(100% - 0px); /* Ajusta el ancho para el margen */
+        }
+        @media print {
+            .page-break {
+                page-break-before: always;
+            }
+            .page-number {
+                position: fixed;
+                bottom: 10px;
+                right: 20px;
+                font-size: 10px;
+            }
+        }
+      
+      	.espaciado {
+                      height: 20px; 
+
+    		word-spacing: 10px; /* Aumenta el espacio entre palabras */
+  		}
+    </style>
+</head>
+<body>
+
+@if($presupuesto->empresa_id == 1)
+    <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('storage/images/baner_steel.png'))) }}" alt="Banner" class="banner">
+   <!-- {{ $porcentaje_tu_cocina='0' }}-->
+ 
+@else
+    <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('storage/images/banner_tu_cocina.png'))) }}" alt="Banner" class="banner">
+    <!-- {{ $porcentaje_tu_cocina='57' }}-->
+
+
+@endif
+
+  
+
+<div class="header">
+  
+<table style="border-collapse: collapse; " border="0" width="32%" align="right"> 
+    <tr class="espacio">
+        <td style="text-align: right; width: 80px;">
+            <strong>PRESUPUESTO:</strong>
+        </td>
+        <td style="text-align: center; width: 20px;">
+            COT{{ str_pad($presupuesto->id, 5, '0', STR_PAD_LEFT) }}
+        </td>
+    </tr>
+    <tr class="espacio">
+        <td style="text-align: right; width: 80px;">
+            <strong>CODIGO CLIENTE:</strong>
+        </td>
+        <td style="text-align: center; width: 20px;">
+            {{ $presupuesto->cliente->id }}
+        </td>
+    </tr>
+</table>
+
+
+    <!--table style="border-collapse: collapse;" border="0" width="500"> 
+
+        <tr class="espacio">
+            <td style="text-align: right;"></td>
+            <td style="text-align: right;width:50px">
+              <strong>PRESUPUESTO:</strong> 
+                COT{{ str_pad($presupuesto->id, 5, '0', STR_PAD_LEFT) }}
+            </td>
+        </tr>
+        <tr class="espacio">
+            <td style="width:50px"> </td>
+            <td style="text-align: right">
+              <strong>CODIGO CLIENTE:</strong>
+                {{ $presupuesto->cliente->id }}
+            </td>
+        </tr>
+    </table-->
+</div>
+
+<div class="header">
+    <table style="border-collapse: collapse;" border="0" width=" 100%" > 
+        <tr class="espacio">
+            <td style="width:50px">
+                <strong>CLIENTE:</strong> {{ $presupuesto->cliente->nombre}}
+            </td>
+            <td style="text-align: right;width:50px;">
+                <strong>N° RIF:</strong> {{ $presupuesto->cliente->rif }}
+            </td>
+        </tr>
+        <tr class="espacio">
+            <td style="width:50px">
+                <strong>DIRECCIÓN:</strong> {{ $presupuesto->cliente->direccion }}
+            </td>
+            <!--td></td-->
+        </tr>
+        <tr class="espacio">
+            <td>
+                <strong>CONTACTO:</strong> {{ $nombre}}
+            </td>
+            <td style="text-align: right;">
+                <!--strong>FECHA:</strong> {{ \Carbon\Carbon::parse($presupuesto->fecha)->format('d/m/Y')}}-->
+			</td>
+        </tr>
+        <tr class="espacio">
+            <td>
+                <strong>CORREO:</strong> {{ $presupuesto->contactos->correo }}
+            </td>
+       		<td style="text-align: right; width: 80px;">
+                <strong>TELÉFONO:</strong> {{ $presupuesto->contactos->telefono }}
+            </td>
+        </tr>
+        <tr class="espacio"  >
+            <td>
+                <strong>FECHA:</strong> {{ \Carbon\Carbon::parse($presupuesto->fecha)->format('d/m/Y')}}
+            </td>
+            <td  style="text-align:right; width:80px;">
+               <strong>VALIDEZ:</strong> {{ $presupuesto->validez }}
+            </td>
+        </tr>
+    </table>
+</div> 
+
+<!--table class="table mb-4" border="1">
+    <thead>
+        <tr class="espacio">
+            <th>ITEM</th>
+            <th>COD</th>
+            <th>DESCRIPCIÓN</th>
+            <th>CANT</th>
+            <th>PRECIO UNITARIO</th>
+            <th>PRECIO TOTAL</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach($presupuesto->items as $item)
+        <tr class="espacio">
+            <td>{{ $item->id }}</td>
+            <td>{{ $item->codigo }}</td>
+            <td>{{ $item->descripcion }}</td>
+            <td>{{ $item->cantidad }}</td>
+            <td class="text-right">${{ number_format($item->precio_unitario, 2) }}</td>
+            <td class="text-right">${{ number_format($item->precio_total, 2) }}</td>
+        </tr>
+        @endforeach
+    </tbody>
+</table-->
+  
+  <table class="table mb-4" border="0" style="border-collapse: collapse; width: 100%;">
+    <thead style="background-color: #f2f2f2;">
+        <tr>
+            <th style="padding: 8px; text-align: center;">#</th> <!-- Columna para el contador -->
+            <!--th style="padding: 8px; text-align: left;">ITEM</th-->
+            <th style="padding: 8px; text-align: center;">COD</th>
+            <th style="padding: 8px; text-align: center;">DESCRIPCIÓN</th>
+            <th style="padding: 8px; text-align: center;">CANT</th>
+            <th style="padding: 8px; text-align: center;">PRECIO UNITARIO</th>
+            <th style="padding: 8px; text-align: center;">PRECIO TOTAL</th>
+        </tr>
+    </thead>
+    <tbody>
+
+        @foreach($presupuesto->items as $index => $item)
+        <tr style="background-color: {{ $index % 2 == 0 ? '#ffffff' : '#f9f9f9' }};">
+            <td style="padding: 6px; text-align: center;">{{ $index + 1 }}</td> <!-- Contador -->
+            <!--td style="padding: 6px;">{{ $item->id }}</td-->
+            <td style="padding: 6px;text-align: center;">{{ $item->codigo }}</td>
+            <td style="padding: 6px;">{{ $item->descripcion }}</td>
+            <td style="padding: 6px; text-align: center;">{{ $item->cantidad }}</td>
+            <td style="padding: 6px; text-align: right;">${{ number_format($item->precio_unitario , 2) }}</td>
+            <td style="padding: 6px; text-align: right;">${{ number_format($item->precio_total , 2) }}</td>
+        </tr>
+        @endforeach
+ 
+      
+    </tbody>
+</table>
+
+
+@if($presupuesto->items->count() > 10)
+    <div class="page-break"></div>
+@endif
+
+ 
+  <div class="totals" style="margin: 0; padding: 0; float: right;">
+    <!--table align="right" style="border-collapse: collapse; margin: 0; padding: 0;"-->
+
+        <table align="right" >
+
+        <tr style="margin: 0; padding: 0;">
+          <td style="text-align: right; padding: 2px;"><strong>SUB-TOTAL USD $:</strong></td>
+            <!--td style="text-align: right; padding: 2px;">{{ number_format($presupuesto->subtotal - $presupuesto->subtotal * $presupuesto->iva / 100, 2) }}</td-->
+            <td style="text-align: right; padding: 2px;">{{ number_format($presupuesto->subtotal , 2) }}</td>
+        </tr>
+        <tr style="margin: 0; padding: 0;">
+            <td style="text-align: right; padding: 2px;"><strong>IVA: 16% $ :</strong></td>
+            <td style="text-align: right; padding: 2px;">{{ number_format($presupuesto->subtotal * $presupuesto->iva / 100  , 2) }}</td>
+        </tr>
+        <tr style="margin: 0; padding: 0;">
+            <td style="text-align: right; padding: 2px;"><strong>DESCUENTO % :</strong></td>
+            <td style="text-align: right; padding: 2px;">{{ $presupuesto->descuento  }}</td>
+        </tr>
+        <tr style="margin: 0; padding: 0;">
+            <td style="text-align: right; padding: 2px; font-weight: bold;"><strong>TOTAL USD $:</strong></td>
+            <td style="text-align: right; padding: 2px;">{{ number_format($presupuesto->total , 2) }}</td>
+        </tr>
+    </table>
+    
+   
+</div>
+
+
+</body>
+</html>

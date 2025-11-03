@@ -1,115 +1,86 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editar Presupuesto</title>
+    <!-- Enlace a Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Enlace a Select2 CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <!-- Enlace a Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    @include('menu')
+    <title>Clientes</title>
+    <style>
+        /* Estilo para filas alternas */
+        tbody tr:nth-child(odd) {
+            background-color: #f8f9fa; /* Color gris claro */
+        }
+        tbody tr:nth-child(even) {
+            background-color: #ffffff; /* Color blanco */
+        }
+        .form-group label {
+            font-weight: bold;
+        }
+        .btn-custom {
+            background-color: #007bff;
+            color: white;
+        }
+    </style>
 </head>
 <body>
-    @include('menu')
 
-    <div class="card">
-        <div class="card-body">
-            <form action="{{ route('factura.update', $presupuesto->id) }}" method="POST">
-                @csrf
-                @method('PUT') <!-- Método PUT para actualización -->
-
-                <div class="container mt-5">
-                    <h1 class="text-center">Editar Presupuesto: {{ $presupuesto->empresa->razon_social }}</h1>
-                    <input type="hidden" name="empresa_id" value="{{ $presupuesto->empresa_id }}">
+    <div class="container mt-5">
+              <h3 class="mb-4">Editar Producto: {{ $inventario->nombre }}</h3>
+				<form action="{{ route('inventario.update', $inventario->id) }}" method="POST">
+                
+                    @csrf
+                    @method('PUT') <!-- Método PUT para actualización -->
 
                     <div class="form-group">
-                        <label for="cliente_id">Selecciona un cliente:</label>
-                        <select class="form-control" id="cliente_id" name="cliente_id" required>
-                            <option value="">Seleccione un cliente</option>
-                            @foreach($clientes as $cliente)
-                                <option value="{{ $cliente->id }}" {{ $cliente->id == $presupuesto->cliente_id ? 'selected' : '' }}>{{ $cliente->nombre }}</option>
-                            @endforeach
-                        </select>
+                        <label for="codigo">Código:</label>
+                        <input type="text" class="form-control" id="codigo" name="codigo" value="{{ old('codigo', $inventario->codigo) }}" required>
                     </div>
 
-                    <div id="producto_cantidades" class="mb-3">
-                        <h5>Productos:</h5>
-                        <!-- Mostrar productos directamente -->
-                        <div class="form-group">
-                            <label for="cantidad_producto1">Cantidad del producto Producto 1:</label>
-                            <input type="number" class="form-control" id="cantidad_producto1" name="cantidad[producto1]" value="2" min="1" required>
-                            <small>Precio: $10.00</small>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="cantidad_producto2">Cantidad del producto Producto 2:</label>
-                            <input type="number" class="form-control" id="cantidad_producto2" name="cantidad[producto2]" value="3" min="1" required>
-                            <small>Precio: $15.00</small>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="cantidad_producto3">Cantidad del producto Producto 3:</label>
-                            <input type="number" class="form-control" id="cantidad_producto3" name="cantidad[producto3]" value="1" min="1" required>
-                            <small>Precio: $20.00</small>
-                        </div>
+                   <div class="form-group">
+                        <label for="descripcion">Descripción:</label>
+                        <textarea class="form-control" id="descripcion" name="descripcion" rows="3" required>{{ old('descripcion', $inventario->descripcion) }}</textarea>
                     </div>
 
                     <div class="form-group">
-                        <label for="subtotal">Subtotal:</label>
-                        <input type="number" class="form-control" id="subtotal" name="subtotal" step="0.01" value="{{ $presupuesto->subtotal }}" required readonly>
+                        <label for="precio_unitario">Precio Unitario:</label>
+                        <input type="number" step="0.01" class="form-control" id="precio_unitario" name="precio_unitario" value="{{ old('precio_unitario', $inventario->precio_unitario) }}">
                     </div>
 
                     <div class="form-group">
-                        <label for="total">Total:</label>
-                        <input type="number" class="form-control" id="total" name="total" step="0.01" value="{{ $presupuesto->total }}" required readonly>
+                        <label for="concepto_general">Concepto General:</label>
+                        <input type="text" class="form-control" id="concepto_general" name="concepto_general" value="{{ old('concepto_general', $inventario->concepto_general) }}">
                     </div>
 
                     <div class="form-group">
-                        <label for="fecha">Fecha:</label>
-                        <input type="date" class="form-control" id="fecha" name="fecha" value="{{ $presupuesto->fecha }}" required>
+                        <label for="version">Versión:</label>
+                        <input type="text" class="form-control" id="version" name="version" value="{{ old('version', $inventario->version) }}">
                     </div>
 
                     <div class="form-group">
-                        <label for="validez">Validez:</label>
-                        <input type="date" class="form-control" id="validez" name="validez" value="{{ $presupuesto->validez }}" required>
+                        <label for="dimensiones">Dimensiones:</label>
+                        <input type="text" class="form-control" id="dimensiones" name="dimensiones" value="{{ old('dimensiones', $inventario->dimensiones) }}">
                     </div>
 
                     <div class="form-group">
-                        <label for="condiciones_pago">Condiciones de Pago:</label>
-                        <input type="text" class="form-control" id="condiciones_pago" name="condiciones_pago" value="{{ $presupuesto->condiciones_pago }}" required>
+                        <label for="detalles">Detalles:</label>
+                        <textarea class="form-control" id="detalles" name="detalles" rows="3">{{ old('detalles', $inventario->detalles) }}</textarea>
                     </div>
 
-                    <button type="submit" class="btn btn-success btn-block">Actualizar</button>
+                    <button type="submit"  class="btn btn-custom">
+                         Actualizar 
+                    </button>
+                    <!--a href="{{ route('inventario.index') }}" class="btn btn-secondary ml-2">
+                        <i class="fas fa-arrow-left"></i> Volver al Inventario
+                    </a-->
                 </form>
-
-                <div id="cantidades_mostradas" class="mt-4">
-                    <h5>Cantidades de Productos:</h5>
-                    <p id="cantidad_producto1_mostrada">Producto 1: 2</p>
-                    <p id="cantidad_producto2_mostrada">Producto 2: 3</p>
-                    <p id="cantidad_producto3_mostrada">Producto 3: 1</p>
-                </div>
             </div>
-        </div>
-    </div>
-
+         <!-- Enlace a jQuery y Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script>
-    function mostrarCantidades() {
-        // Obtener las cantidades de los inputs
-        const cantidad1 = $('#cantidad_producto1').val();
-        const cantidad2 = $('#cantidad_producto2').val();
-        const cantidad3 = $('#cantidad_producto3').val();
-
-        // Mostrar las cantidades en el div correspondiente
-        $('#cantidad_producto1_mostrada').text(`Producto 1: ${cantidad1}`);
-        $('#cantidad_producto2_mostrada').text(`Producto 2: ${cantidad2}`);
-        $('#cantidad_producto3_mostrada').text(`Producto 3: ${cantidad3}`);
-    }
-
-    $(document).ready(function() {
-        // Mostrar cantidades al cargar la página
-        mostrarCantidades();
-
-        // Actualizar cantidades al cambiar los inputs
-        $('#cantidad_producto1, #cantidad_producto2, #cantidad_producto3').on('input', mostrarCantidades);
-    });
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

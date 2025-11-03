@@ -8,7 +8,7 @@
     <!-- Enlace a Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     @include('menu')
-    <title>Clientes</title>
+    <title>Empresas</title>
     <style>
         /* Estilo para filas alternas */
         tbody tr:nth-child(odd) {
@@ -25,7 +25,7 @@
 
 @section('content')
 <div class="container mx-auto px-4 py-8 max-w-2xl">
-    <h1 class="text-3xl font-bold text-gray-800 mb-6">Editar Empresa: {{ $empresa->razon_social }}</h1>
+    <h3 class="text-3xl font-bold text-gray-800 mb-6">Editar Empresa: {{ $empresa->razon_social }}</h3>
 
     <form action="{{ route('empresas.update', $empresa->id) }}" method="POST" class="bg-white shadow-md rounded-lg p-6">
         @csrf
@@ -64,7 +64,16 @@
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror
             </div>
-
+			<!-- Correo -->
+            <div>
+                <label for="correo_empresa" class="block text-sm font-medium text-gray-700">Correo *</label>
+                <input type="tel" name="correo_empresa" id="correo_empresa"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                    value="{{  old('correo_empresa', $empresa->correo_empresa)}}" >
+                @error('telefono')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
             <!-- Estatus -->
             <div>
                 <label for="estatus" class="block text-sm font-medium text-gray-700">Estatus</label>
@@ -77,8 +86,8 @@
 
             <!-- Fecha de Registro -->
             <div>
-                <label for="fecha_registro" class="block text-sm font-medium text-gray-700">Fecha de Registro *</label>
-                <input type="date" name="fecha_registro" id="fecha_registro"
+                <!--label for="fecha_registro" class="block text-sm font-medium text-gray-700">Fecha de Registro *</label-->
+                <input type="hidden" name="fecha_registro" id="fecha_registro"
                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                     value="{{ old('fecha_registro', $empresa->fecha_registro) }}" required>
                 @error('fecha_registro')

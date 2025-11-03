@@ -9,10 +9,27 @@ use Illuminate\Http\Request;
 class EmpresaController extends Controller
 {
 
-public function index() {
+public function index2() {
     $empresas = Empresa::paginate(10);
     return view('empresas.index', compact('empresas'));
 }
+  
+public function index(Request $request)
+{
+    // Obtener el término de búsqueda
+    $search = $request->input('search');
+
+    // Filtrar las empresas según el término de búsqueda y paginar los resultados
+    $empresas = Empresa::when($search, function($query) use ($search) {
+        return $query->where('rif', 'LIKE', "%{$search}%")
+                     ->orWhere('razon_social', 'LIKE', "%{$search}%")
+                     ->orWhere('correo_empresa', 'LIKE', "%{$search}%");
+    })->paginate(10); // Cambia '10' por el número de elementos por página que desees
+
+    return view('empresas.index', compact('empresas'));
+  
+}
+  
 /*
 public function store(Request $request) {
     $request->validate([
@@ -42,6 +59,7 @@ public function store(Request $request) {
         $request->validate([
             'razon_social' => 'required',
             'rif' => 'required',
+            'correo_empresa' => 'required',
             'telefono' => 'required',
             'estatus' => 'required',
             'fecha_registro' => 'required|date',
@@ -77,8 +95,9 @@ public function store(Request $request) {
 
         $request->validate([
             'razon_social' => 'required|string|max:100',
-            'rif' => 'required|string|max:20|unique:empresas,rif,'.$empresa->id,
+            'rif' => 'required|string|max:20|unique:empresa,rif,'.$empresa->id,
             'telefono' => 'required|string|max:15',
+                      'correo_empresa' => 'required|string|max:100',
             'fecha_registro' => 'required|date',
         ]);
 

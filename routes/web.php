@@ -1,5 +1,7 @@
 <?php
 
+//return;
+
 use App\Http\Controllers\ClientesController;
 use App\Http\Controllers\EditarController; // Asegúrate de que este controlador sea necesario, no se usa en las rutas proporcionadas.
 use Illuminate\Support\Facades\Route;
@@ -8,15 +10,22 @@ use App\Http\Controllers\ListaController; // Asegúrate de que este controlador 
 use App\Http\Controllers\PresupuestoController;
 use App\Http\Controllers\ContactoController;
 use App\Http\Controllers\InventarioController;
+//use App\Http\Controllers\ProductoController;
+
 
 Route::get('/', function () {
     return view('welcome');
 });
 
 
+
+
 // Rutas de autenticación y facturas
 Route::get('/login', [Facturas::class, 'login'])->name('welcome');
+
 Route::post('/factura/index', [Facturas::class, 'usuarios'])->name('usuario');
+Route::post('/logout', [Facturas::class, 'logout'])->name('logout');
+
 Route::get('/factura/index', [Facturas::class, 'index'])->name('factura.index');
 Route::get('/factura/presupuesto{id}', [Facturas::class, 'buscar'])->name('buscar');
 Route::post('/factura/cargar', [Facturas::class, 'cargar'])->name('factura.carga');
@@ -28,9 +37,26 @@ Route::delete('/factura/index/{id}', [Facturas::class, 'eliminar'])->name('factu
 // Rutas de contactos
 Route::post('/contactos', [ContactoController::class, 'store'])->name('contactos.store');
 
+
+//Ruta AJAX
+
+
+
+Route::get('/api/productos', [InventarioController::class, 'buscarProductos']);
+Route::get('/api/productos/{id}', [InventarioController::class, 'obtenerProducto']);
+
+
+
+
 // Rutas de Inventario (CRUD completo con Route::resource)
 // Esto reemplaza: Route::get('/inventario', [InventarioController::class, 'index'])->name('inventario.index');
+
 Route::resource('inventario', InventarioController::class);
+//Route::put('/inventario/edit/{id}', [InventarioController::class, 'edit'])->name('inventario.update');
+Route::put('inventario/edit/{id}', [InventarioController::class, 'update'])->name('inventario.update');
+Route::post('/inventario/actualizar_precios', [InventarioController::class, 'actualizarPrecios'])->name('inventario.actualizar_precios');
+
+
 
 // Rutas de Clientes
 Route::get('/cliente/index', [ClientesController::class, 'index'])->name('user.index');
@@ -58,5 +84,17 @@ Route::resource('empresas', EmpresaController::class);
 
 
 use App\Http\Controllers\TasaBcvController;
-
 Route::resource('tasa_bcv', TasaBcvController::class);
+
+use App\Http\Controllers\IvaController;
+Route::resource('iva', IvaController::class);
+
+use App\Http\Controllers\UserController;
+Route::resource('users', UserController::class);
+
+use App\Http\Controllers\ProfileController;
+Route::resource('profile', ProfileController::class);
+
+use App\Http\Controllers\EstatusController;
+
+Route::get('/estatus/{id}', [EstatusController::class, 'mostrarNombre']);

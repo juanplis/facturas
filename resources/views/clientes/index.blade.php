@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <!-- Enlace a Bootstrap CSS -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <!-- Enlace a Select2 CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
-    <!-- Enlace a Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     @include('menu')
     <title>Clientes</title>
     <style>
@@ -21,11 +21,28 @@
 </head>
 <body>
     <div class="container mt-5">
-        <h1>Lista de Clientes</h1>
+        <h3>Lista de Clientes</h3>
+      <form action="{{ route('user.index') }}" method="GET">
+
         <a href="{{ route('user.crear') }}" class="btn btn-primary mb-3">Crear Cliente</a>
+  <!-- Campo de búsqueda -->
+       <!--input type="text" id="search" name="search" class="form-control mb-3" placeholder="Buscar clientes..."-->
+        
+        
+        <div class="input-group">
+                <input type="text" name="search" class="form-control" placeholder="Buscar clientes..." value="{{ request('search') }}">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="submit">Buscar</button>
+                </div>
+            </div>
+        
+        
+        
+        
         <table class="table table-bordered">
             <thead class="thead-light">
                 <tr>
+                    <th>N°</th>
                     <th>Nombre</th>
                     <th>RIF</th>
                     <th>Dirección</th>
@@ -37,6 +54,7 @@
             <tbody>
                 @foreach($clientes as $cliente)
                 <tr>
+                    <td>{{ $cliente->id }}</td>
                     <td>{{ $cliente->nombre }}</td>
                     <td>{{ $cliente->rif }}</td>
                     <td>{{ $cliente->direccion }}</td>
@@ -51,7 +69,6 @@
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-danger delete-button" data-id="{{ $cliente->id }}">
-                                  <!-- <button type="submit" class="btn btn-danger delete-button" data-id="{{ $cliente->id }}" onclick="return confirm('¿Estás seguro de que quieres eliminar este cliente?');">-->
                                     <i class="fas fa-trash-alt"></i>
                                 </button>
                             </form>
@@ -61,9 +78,53 @@
                 @endforeach
             </tbody>
         </table>
+
+        {{-- Mensaje de éxito --}}
+        @if (session('success'))
+            <div class="alert alert-success">
+                {{ session('success') }}
+            </div>
+        @endif
+        
+        {{-- Paginación --}}
+        <div class="d-flex justify-content-between align-items-center mt-4">
+            <div>
+                Showing {{ $clientes->firstItem() }} to {{ $clientes->lastItem() }} of {{ $clientes->total() }} results
+            </div>
+            <div>
+                {{ $clientes->appends(request()->except('page'))->links('pagination::bootstrap-4') }}
+            </div>
+        </div>
+        </form>
+
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('search');
+        const tableRows = document.querySelectorAll('#clientesTable tbody tr');
+
+        searchInput.addEventListener('keyup', function() {
+            const query = this.value.toLowerCase();
+
+            tableRows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                const rowText = Array.from(cells).map(cell => cell.textContent.toLowerCase()).join(' ');
+
+                if (rowText.includes(query)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    });
+</script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Manejar el evento de envío del formulario de eliminación
@@ -113,10 +174,5 @@
             @endif
         });
     </script>
-</body>
-
-
-        </table>
-    </div>
 </body>
 </html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+	<!DOCTYPE html>
 <html lang="es">
 <head>
     <!-- Enlace a Bootstrap CSS -->
@@ -35,23 +35,42 @@
     </style>
 </head>
 <body>
+@php
+    $userName = session('user_name');
+    $profileType = session('profile_type');
+    $token = session('profile_type');
+@endphp
     <div class="container mt-5">
-        <h1>Lista de Presupuestos</h1>
-        <a href="{{ route('buscar', ['id' => 1]) }}" class="btn btn-primary mb-3">Crear Presupuesto (STELL)</a>
-        <a href="{{ route('buscar', ['id' => 2]) }}" class="btn btn-primary mb-3">Crear Presupuesto (TuCocina)</a>
+        <h3>Lista de Presupuestos</h3>
+      
+        <form action="{{ route('factura.index') }}" method="GET" class="mb-3">
+
+      <div class="input-group">
+                <input type="text" name="search" class="form-control" placeholder="Buscar por cliente, empresa o fecha..." value="{{ request('search') }}">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="submit">Buscar</button>
+                </div>
+            </div>
+          
+        @if( $profileType==1 or $profileType==2 )
+        <a href="{{ route('buscar', ['id' => 1]) }}" class="btn btn-success mb-3">Crear Presupuesto Steel</a>
+		@endif    
+          
+          
+        <a href="{{ route('buscar', ['id' => 2]) }}" class="btn btn-primary mb-3">Crear Presupuesto TuCocina</a>
 
         <table class="table table-bordered">
             <thead class="thead-light">
                 <tr>
-                    <th>N° Presupuesto</th>
-                    <th>Cliente ID</th>
+                    <th>N°</th>
+                    <th>Cliente</th>
                     <th>Empresa</th>
                     <th>Fecha</th>
                     <th>Subtotal</th>
                     <th>IVA</th>
                     <th>Total</th>
                     <th>Condiciones de Pago</th>
-                    <th>Tiempo Entrega</th>
+                    <!--th>Tiempo Entrega</th-->
                     <th>Validez</th>
                     <th>Estatus</th>
                     <th>Acciones</th>
@@ -68,7 +87,7 @@
                     <td>{{ number_format($presupuesto->iva, 2, ',', '.') }} </td>
                     <td>{{ number_format($presupuesto->total, 2, ',', '.') }} </td>
                     <td>{{ $presupuesto->condiciones_pago }}</td>
-                    <td>{{ $presupuesto->tiempo_entrega }}</td>
+                    <!--td>{{ $presupuesto->tiempo_entrega }}</td-->
                     <td>{{ $presupuesto->validez }}</td>
                     <td>
                         @if($presupuesto->estado)
@@ -80,9 +99,9 @@
                         @endif
                     </td>
                     <td>
-                        <a href="{{ route('factura.ver', $presupuesto->id) }}" class="btn btn-info">
+                        <!-- <a href="{{ route('factura.ver', $presupuesto->id) }}" class="btn btn-info">*
                             <i class="fas fa-eye"></i>
-                        </a>
+                        </a>-->
                         <a href="{{ route('factura.edita', $presupuesto->id) }}" class="btn btn-primary">
                             <i class="fas fa-pencil-alt"></i>
                         </a>
@@ -93,7 +112,7 @@
                                 <i class="fas fa-trash-alt"></i>
                             </button>
                         </form>
-                        <a href="{{ route('presupuestos.pdf', $presupuesto->id) }}" class="btn btn-success">
+                        <a href="{{ route('presupuestos.pdf', $presupuesto->id) }}" class="btn btn-success" title="Descargar PDF">
                             <i class="fas fa-file-pdf"></i>
                         </a>
                     </td>
@@ -107,6 +126,8 @@
 
             {{ $presupuestos->appends(request()->except('page'))->links('pagination::bootstrap-4') }} <!-- Esto genera los enlaces de paginación -->
         </div>
+             </form>
+
     </div>
 
     <!-- Incluir el script de SweetAlert2 -->

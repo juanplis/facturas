@@ -26,4 +26,11 @@ class Item extends Model  // ✅ Modelo corregido
         'precio_total'
 
     ];
+  
+  
+  public function items()
+    {
+        return $this->hasMany(Items::class, 'presupuesto_id');
+    }
 }
+

@@ -22,9 +22,11 @@ class Presupuesto extends Model
         'validez',
         'condiciones_pago',
         'estatus_presupuesto',
+        'correlativo',
         'empresa_id',
         'estatus_presupuesto',
-
+      	'iva',
+		'descuento',
 
         // Agrega otros atributos que necesites
     ];
