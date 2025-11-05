@@ -10,6 +10,7 @@ use App\Http\Controllers\ListaController; // Asegúrate de que este controlador 
 use App\Http\Controllers\PresupuestoController;
 use App\Http\Controllers\ContactoController;
 use App\Http\Controllers\InventarioController;
+use App\Http\Controllers\PorcentajeController;
 //use App\Http\Controllers\ProductoController;
 
 
@@ -98,3 +99,12 @@ Route::resource('profile', ProfileController::class);
 use App\Http\Controllers\EstatusController;
 
 Route::get('/estatus/{id}', [EstatusController::class, 'mostrarNombre']);
+
+
+//Rutas de Porcentaje***********
+
+
+Route::post('/manejo_porcentaje', [PorcentajeController::class, 'store'])->name('manejo_porcentaje.store');
+
+
+

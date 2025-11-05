@@ -1,12 +1,13 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Models\PorcentajeInventario;
 use App\Models\TasaBcv;
 use Illuminate\Http\Request;
 
 class TasaBcvController extends Controller
 {
- /*  
+ /*
   public function index()
     {
         $tasa_bcvs = TasaBcv::all();
@@ -26,7 +27,10 @@ class TasaBcvController extends Controller
                          ->orWhere('intervenciones', 'LIKE', "%{$search}%");
         })->get(); // Puedes cambiar get() por paginate(10) si deseas paginación
 
-        return view('tasa_bcv.index', compact('tasa_bcvs'));
+        $ultimo_porcentaje = PorcentajeInventario::latest()->first();
+    // ^^^ Asumiendo que usaste la solución de 'latest()->first()'
+
+        return view('tasa_bcv.index', compact('tasa_bcvs', 'ultimo_porcentaje'));
     }
     public function create()
     {

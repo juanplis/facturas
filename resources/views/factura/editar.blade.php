@@ -19,6 +19,17 @@
                     @method('PUT')
                     <input type="hidden" id="empresa_id" name="empresa_id" value="{{ $presupuesto->empresa_id }}">
 
+                    {{-- NUEVO CAMPO: Porcentaje de Inventario Aplicado --}}
+                    {{-- Usamos el porcentaje guardado en el presupuesto o el valor por defecto del modelo PorcentajeInventario --}}
+                    <div class="form-group">
+                        <label for="porcentaje_aplicado">Porcentaje de Inventario Aplicado (%):</label>
+                        <input type="number" class="form-control" id="porcentaje_aplicado" name="porcentaje_aplicado" step="0.01"
+                            value="{{ $presupuesto->porcentaje ?? ($porcentaje->porcentaje ?? 0) }}"
+                            required
+                            oninput="generarCamposCantidad(); calcularTotales()">
+                        <small class="form-text text-muted">Este valor se usa para ajustar el precio unitario si la Empresa no es la principal (ID 1).</small>
+                    </div>
+
                     <div class="form-group">
                         <label for="correlativo">Correlativo:</label>
                         <span class="form-control-plaintext" id="correlativo">{{ $presupuesto->correlativo }}</span>
@@ -42,7 +53,7 @@
                                     data-precio="{{ $producto->precio_unitario }}"
                                     data-descripcion="{{ $producto->descripcion }}"
                                     {{ in_array($producto->codigo, $presupuesto->items->pluck('codigo')->toArray()) ? 'selected' : '' }}>
-                                    {{ $producto->codigo }} - {{ $producto->descripcion }} 
+                                    {{ $producto->codigo }} - {{ $producto->descripcion }}
                                 </option>
                             @endforeach
                         </select>
@@ -57,12 +68,12 @@
 
                     <div class="form-group">
                         <label for="iva">IVA (%):</label>
-                        <input type="number" class="form-control" id="iva" name="iva" step="0.01" value="16" oninput="calcularTotales()">
+                        <input type="number" class="form-control" id="iva" name="iva" step="0.01" value="{{ $iva }}" oninput="calcularTotales()">
                     </div>
 
                     <div class="form-group">
                         <label for="descuento">Descuento (%):</label>
-                        <input type="number" class="form-control" id="descuento" name="descuento" step="0.01" value="0" oninput="calcularTotales()">
+                        <input type="number" class="form-control" id="descuento" name="descuento" step="0.01" value="{{ $presupuesto->descuento ?? 0 }}" oninput="calcularTotales()">
                     </div>
 
                     <div class="form-group">
@@ -95,14 +106,14 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-  <script>
+<script>
     // Función para dar formato a los resultados en Select2
     function formatProductResult(product) {
         if (!product.id) {
             return product.text;
         }
 
-        const parts = product.text.split(' - ', 2); 
+        const parts = product.text.split(' - ', 2);
         const codigo = parts[0];
         const descripcion = parts.length > 1 ? parts[1] : '';
 
@@ -116,56 +127,66 @@
             templateResult: formatProductResult
         });
 
+        // Inicializar campos al cargar la página
         generarCamposCantidad();
         calcularTotales();
 
+        // Listener para la selección de productos
         $('#producto_id').on('change', function() {
             generarCamposCantidad();
             calcularTotales();
         });
-        
+
         // Listener para los cambios en las cantidades
         $('#producto_cantidades').on('input', 'input[type="number"]', function() {
             calcularTotales();
         });
+
+        // NOTA: El listener para 'porcentaje_aplicado' se añade directamente en el HTML con oninput
     });
 
+    // Usamos el JSON de los ítems existentes para prellenar cantidades
     const presupuestoItems = @json($presupuesto->items);
 
     function generarCamposCantidad() {
         const selectedProductCodes = $('#producto_id').val() || [];
         const cantidadesContainer = $('#producto_cantidades');
-        cantidadesContainer.empty(); 
+        cantidadesContainer.empty();
 
         const empresa_id = document.getElementById('empresa_id').value;
+
+        // **NUEVA LÓGICA: Obtener el porcentaje aplicado**
+        const porcentajeAplicado = parseFloat($('#porcentaje_aplicado').val()) || 0;
+        const factorPorcentaje = porcentajeAplicado / 100;
 
         selectedProductCodes.forEach(function(productCode) {
             const productOption = $(`#producto_id option[value="${productCode}"]`);
             const productoDescripcion = productOption.data('descripcion');
             const productoPrecioBase = parseFloat(productOption.data('precio'));
-            
-            const fullText = productOption.text().trim();
-            const productoCodigo = fullText.split(' - ', 1)[0]; 
 
-            // **Lógica de Ajuste de Precio por Empresa**
+            const fullText = productOption.text().trim();
+            const productoCodigo = fullText.split(' - ', 1)[0];
+
+            // **Lógica de Ajuste de Precio por Empresa (Dinámica)**
             let adjustedPrice = productoPrecioBase;
-            if (empresa_id != '1') {
-                adjustedPrice = productoPrecioBase / 0.45;
-              //adjustedPrice = productoPrecioBase / 0.57;
+            if (empresa_id != '1' && factorPorcentaje > 0) {
+                adjustedPrice = productoPrecioBase / factorPorcentaje;
             }
             const adjustedPriceFormatted = adjustedPrice.toFixed(2);
 
 
             const existingItem = presupuestoItems.find(item => item.codigo === productCode);
+            // El presupuesto almacena el precio unitario ajustado final, pero para la edición
+            // usamos la cantidad guardada. El precio se recalcula en base al porcentaje actual.
             const cantidadValue = existingItem ? existingItem.cantidad : 1;
 
             const cantidadHtml = `
                 <div class="form-group">
                     <label for="cantidad_${productCode}">Cantidad de ${productoCodigo} - ${productoDescripcion}:</label>
-                    <input type="number" class="form-control" id="cantidad_${productCode}" 
-                                name="cantidad[${productCode}]" min="1" value="${cantidadValue}" required 
-                                oninput="calcularTotales()">
-                    <small class="precio-ajustado" data-precio-ajustado="${adjustedPrice}">Precio: $${adjustedPriceFormatted}</small>
+                    <input type="number" class="form-control" id="cantidad_${productCode}"
+                                 name="cantidad[${productCode}]" min="1" value="${cantidadValue}" required
+                                 oninput="calcularTotales()">
+                    <small class="precio-ajustado" data-precio-ajustado="${adjustedPrice}">Precio unitario ajustado: $${adjustedPriceFormatted}</small>
                 </div>
             `;
             cantidadesContainer.append(cantidadHtml);
@@ -178,13 +199,13 @@
 
         selectedProductCodes.forEach(function(productCode) {
             const cantidad = parseInt($(`#cantidad_${productCode}`).val()) || 0;
-            
-            // **CORRECCIÓN:** Obtener el precio ajustado guardado en el elemento small asociado
+
+            // Obtener el precio ajustado guardado en el elemento small asociado
             const precioAjustadoElement = $(`#producto_cantidades input[id="cantidad_${productCode}"]`).siblings('.precio-ajustado');
             const precioAjustado = parseFloat(precioAjustadoElement.data('precio-ajustado')) || 0;
 
             // El subtotal se calcula con el precio ajustado
-            subtotal += cantidad * precioAjustado; 
+            subtotal += cantidad * precioAjustado;
         });
 
         const iva = parseFloat($('#iva').val()) || 0;

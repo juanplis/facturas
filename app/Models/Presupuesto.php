@@ -24,6 +24,7 @@ class Presupuesto extends Model
         'estatus_presupuesto',
         'correlativo',
         'empresa_id',
+        'porcentaje',
         'estatus_presupuesto',
       	'iva',
 		'descuento',

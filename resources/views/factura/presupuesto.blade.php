@@ -20,13 +20,31 @@
                         <input type="hidden" id="empresa_id" name="empresa_id" value="{{ $empresa->id }}">
                     @endforeach
 
-                  <div class="form-group">
+                    <div class="form-group">
                         <label for="correlativo">Correlativo:</label>
                         <input type="text" class="form-control" id="correlativo" name="correlativo" value="{{ $correlativo }}" readonly>
                     </div>
-                  
-                  
-                  
+
+                    {{-- Obtener el ID de la empresa actual de la colección $empresas --}}
+                    @php
+                        $currentEmpresaId = $empresas->isNotEmpty() ? $empresas->first()->id : null;
+                    @endphp
+
+                    <!-- NUEVA SECCIÓN: Mostrar el Porcentaje de Inventario solo para EMPRESA != 1 -->
+                    @if ($currentEmpresaId && $currentEmpresaId != 1)
+                        <div class="form-group">
+                            <label for="porcentaje_inventario">Porcentaje de Inventario (Aplicado a Precio Base):</label>
+                            <!-- Campo visible solo para Empresa != 1 -->
+                            <input type="text" class="form-control" value="{{ $porcentaje ? $porcentaje->porcentaje  : '0%' }}" readonly>
+                        </div>
+                        <!-- Campo oculto con el valor dinámico para Empresa != 1 -->
+                        <input type="hidden" id="valor_porcentaje_inventario" name="porcentaje_aplicado" value="{{ $porcentaje ? $porcentaje->porcentaje : 0 }}">
+                    @else
+                        <!-- Campo oculto con valor 0 para Empresa 1 (para que JS no falle y se envíe 0) -->
+                        <input type="hidden" id="valor_porcentaje_inventario" name="porcentaje_aplicado" value="0">
+                    @endif
+                    <!-- FIN NUEVA SECCIÓN -->
+
                     <div class="form-group">
                         <label for="cliente_id">Selecciona un cliente:</label>
                         <select class="form-control" id="cliente_id" name="cliente_id"  required>
@@ -43,7 +61,7 @@
                             <option value="">Seleccione productos</option>
                         </select>
                     </div>
-					
+
                     <div id="producto_cantidades" class="mb-3"></div> <!-- Contenedor para las cantidades -->
 
                     <div class="form-group">
@@ -53,7 +71,7 @@
 
                     <div class="form-group">
                         <label for="iva">IVA (%):</label>
-                        <input type="number" class="form-control" id="iva" name="iva" step="0.01" value="16" readonly>
+                        <input type="number" class="form-control" id="iva" name="iva" step="0.01" value="{{ $iva }}" readonly>
                     </div>
 
                     <div class="form-group">
@@ -86,7 +104,7 @@
             </form>
         </div>
     </div>
-    
+
 <!-- Enlace a Bootstrap JS y dependencias -->
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
@@ -128,7 +146,7 @@ $(document).ready(function() {
         language: {
             inputTooShort: function () {
                 //return "Introduce más caracteres"; // Mensaje en español
-	           return	"Por favor, introduzca el nombre, código o descripción del producto.";
+	            return	"Por favor, introduzca el nombre, código o descripción del producto.";
             },
             // Puedes añadir otros mensajes en español si lo deseas
         }
@@ -155,11 +173,33 @@ $(document).ready(function() {
                         // Ajuste del precio según el ID de la empresa
                         let empresa_id = document.getElementById('empresa_id').value;
 
+                        // **Opcional: Si el porcentaje de inventario debe aplicarse aquí, descomenta y ajusta esta lógica**
+                        // const porcentajeInventario = parseFloat(document.getElementById('valor_porcentaje_inventario').value) || 0;
+                        // const factorPorcentaje = (100 + porcentajeInventario) / 100;
+                        // productPrice *= factorPorcentaje;
+
                         if (empresa_id != 1) {
                            // productPrice /= 0.57; // Ajusta el precio si es necesario
-                            productPrice /= 0.45; // Ajusta el precio si es necesario
+
+                            // OJO: Esta era la línea codificada que reemplazaremos.
+                            // productPrice /= 0.45; // Ajusta el precio si es necesario
+
+                            // Obtener el valor del porcentaje dinámico
+                            const porcentajeInventarioValue = parseFloat(document.getElementById('valor_porcentaje_inventario').value) || 1;
+
+                            // Convertir el valor a decimal (e.g., 45 -> 0.45) para usarlo en la división.
+                            const factorPorcentaje = porcentajeInventarioValue / 100;
+
+                            // NUEVA LÓGICA: Usar el porcentaje dinámico como divisor (SOLO PARA EMPRESA != 1)
+                            if (factorPorcentaje !== 0) {
+                                productPrice /= factorPorcentaje;
+                            } else {
+                                // En caso de que el porcentaje sea 0 (para evitar división por cero), no aplicamos ajuste.
+                                console.error("Error: El porcentaje de inventario es cero (0), se usará precio base.");
+                            }
 
                         } else {
+                            // Lógica para EMPRESA 1 (No se aplica el porcentaje)
                             productPrice /= 1;
                         }
 
@@ -200,7 +240,8 @@ function calcularTotales() {
             const cantidad = parseInt($(`#cantidad_${productId}`).val()) || 0;
             const productPrice = parseFloat($(`#producto_${productId} .precio-producto`).data('precio')) || 0;
 
-            // Ajuste del precio según el ID de la empresa
+            // Ajuste del precio según el ID de la empresa - ESTA LÓGICA DE PRECIO YA SE HIZO EN EL 'change' handler
+            // y está guardada en el atributo data-precio. Aquí solo se usa para calcular el subtotal.
             let precioFinal = productPrice;
 
             // Depuración

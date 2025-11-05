@@ -11,9 +11,11 @@ use App\Models\Usuarios;
 use App\Models\Items;
 use App\Models\Empresa;
 use App\Models\Factura;
-
+use App\Models\Iva;
+use App\Models\PorcentajeInventario;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Routing\Controller;
+
 use Session;
 use Illuminate\Support\Str;
 
@@ -47,7 +49,7 @@ public function index()
 }
 
 */
-  
+
   public function index(Request $request)
     {
         $search = $request->input('search');
@@ -139,13 +141,19 @@ public function index()
     return view('factura.presupuesto', compact('clientes', 'inventarios', 'empresas'));
 }*************************************************/
 
-  
-  
+
+
   //************* Nuevo controlador***********
-  
-  
- public function buscar(Request $request, $id)
+
+
+public function buscar(Request $request, $id)
 {
+
+
+
+    // Obtener el monto del IVA
+   $ivaModel = Iva::orderBy('id', 'desc')->first(); // Obtiene el último registro de IVA
+    $iva = $ivaModel ? $ivaModel->monto_iva : 0; // Manejar el caso donde no haya registro
     // Obtener todos los clientes
     $clientes = Clientes::all();
 
@@ -163,11 +171,12 @@ public function index()
     // Obtener el correlativo para la empresa
     $correlativo = $this->obtenerCorrelativo($id); // Suponiendo que $id es el tipo de empresa
 
+    $porcentaje = PorcentajeInventario::latest()->first();
     // Retornar la vista con los datos necesarios
-    return view('factura.presupuesto', compact('clientes', 'inventarios', 'empresas', 'correlativo'));
+    return view('factura.presupuesto', compact('clientes', 'inventarios', 'empresas', 'correlativo', 'iva', 'porcentaje'));
 }
 
-  
+
 public function cargar(Request $request)
 {
     // 1. Validar los datos recibidos
@@ -182,8 +191,11 @@ public function cargar(Request $request)
         'descripcion' => 'required|array', // Aquí se espera que contenga los IDs de los productos
         'cantidad' => 'required|array',
         'empresa_id' => 'required|integer',
-        'correlativo' => 'required|integer' // Asegúrate de que el correlativo sea requerido y sea un entero
+        'correlativo' => 'required|integer', // Asegúrate de que el correlativo sea requerido y sea un entero
+        'porcentaje_aplicado' => 'required|numeric' // ¡NUEVA VALIDACIÓN!
     ]);
+
+    //dd( $request);
 
     // 2. Calcular el total considerando IVA y descuento
     $subtotal = $request->subtotal;
@@ -207,7 +219,8 @@ public function cargar(Request $request)
         'condiciones_pago' => $request->condiciones_pago ?: null,
         'validez' => $request->validez ?: null,
         'empresa_id' => $request->empresa_id,
-        'correlativo' => $correlativoIncrementado, // Asignar el correlativo incrementado
+        'correlativo' => $correlativoIncrementado,
+        'porcentaje' => $request->porcentaje_aplicado, // ¡GUARDAR EL PORCENTAJE APLICADO!
         'status' => 1
     ]);
 
@@ -226,10 +239,22 @@ public function cargar(Request $request)
 
         // Ajustar el precio unitario según la empresa
         $preciounitario = $inventarioItem->precio_unitario;
+
         if ($request->empresa_id != 1) {
-            $preciounitario /= 0.45; // Ajustar el precio
+            // Obtener el valor dinámico del porcentaje aplicado
+            $porcentajeAplicado = $request->porcentaje_aplicado;
+            $factorPorcentaje = $porcentajeAplicado / 100;
+
+            // Lógica de cálculo dinámica
+            if ($factorPorcentaje > 0) {
+                $preciounitario /= $factorPorcentaje;
+            }
+            // ELSE: Si factorPorcentaje es 0, no hacemos nada (mantenemos precio unitario base).
+
+            // LÍNEA COMENTADA QUE REEMPLAZA AL VALOR FIJO ANTERIOR:
+            // $preciounitario /= 0.45; // Este era el cálculo anterior
         }
-        
+
         $preciototal = $cantidad * $preciounitario;
 
         Items::create([
@@ -269,10 +294,10 @@ public function cargar(Request $request)
     return $nuevoCorrelativo;
 }
 
-  
-  
-  //**************************** pruebas de correlativos 
-  
+
+
+  //**************************** pruebas de correlativos
+
  /* private function obtenerCorrelativo($tipo_empresa)
 {
     // Obtener el último correlativo para el tipo de empresa
@@ -290,13 +315,13 @@ public function cargar(Request $request)
 }*/
 
   //****************************////
-  
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
+
 /*public function cargar(Request $request)
 {
     // 1. Validar los datos recibidos
@@ -352,7 +377,7 @@ public function cargar(Request $request)
            $preciounitario /= 0.45; // Ajustar el precio
 
         }
-        
+
         $preciototal = $cantidad * $preciounitario;
 
         Items::create([
@@ -399,134 +424,144 @@ public function eliminar($id)
         return redirect()->back()->with('success', 'Presupuesto y sus items eliminados con éxito.');
     }
     return redirect()->back()->with('error', 'Presupuesto no encontrado.');
-  
-  
+
+
 }
-  
 
 
-
-
-public function editar($id)
+  public function editar($id)
     {
-        // Obtener el presupuesto por ID
+        // 1. Obtener el monto del IVA
+        $ivaModel = Iva::orderBy('id', 'desc')->first(); // Obtiene el último registro de IVA
+        $iva = $ivaModel ? $ivaModel->monto_iva : 0; // Manejar el caso donde no haya registro
+
+        // 2. Obtener el porcentaje de inventario
+        $porcentajeInventarioModel = PorcentajeInventario::orderBy('id', 'desc')->first();
+        $porcentaje = $porcentajeInventarioModel ? $porcentajeInventarioModel : null;
+
+        // 3. Obtener el presupuesto por ID
         $presupuesto = Presupuesto::find($id);
 
         if (!$presupuesto) {
             return redirect()->route('factura.index')->with('error', 'Presupuesto no encontrado.');
         }
 
-        // Obtener todos los clientes
+        // 4. Obtener todos los clientes
         $clientes = Clientes::all();
 
-        // Obtener los ítems relacionados con el presupuesto
+        // 5. Obtener los ítems relacionados con el presupuesto
         $items = $presupuesto->items; // Asegúrate de que la relación esté definida en el modelo Presupuesto
 
-        // Obtener todos los productos del inventario
+        // 6. Obtener todos los productos del inventario
         $productos = Inventario::all(); // Cambia esto si necesitas filtrar productos específicos
 
-
-		//var_dump($items);
-        // Pasar datos a la vista
-        return view('factura.editar', compact('presupuesto', 'clientes', 'items', 'productos'));
+        // 7. Pasar datos a la vista
+        return view('factura.editar', compact('presupuesto', 'clientes', 'items', 'productos', 'iva', 'porcentaje'));
     }
 
 
-  	public function update(Request $request, $id)
-{
-    // 1. Validar los datos recibidos
-    $request->validate([
-        'cliente_id' => 'required|integer',
-        'fecha' => 'required|date',
-        'subtotal' => 'required|numeric',
-        'iva' => 'required|numeric',
-        'descuento' => 'nullable|numeric',
-        'total' => 'required|numeric',
-        'condiciones_pago' => 'nullable|string',
-        'validez' => 'nullable|date',
-        'descripcion' => 'required|array', // Códigos de producto
-        'cantidad' => 'required|array',     // Cantidades (array asociativo)
-        'empresa_id' => 'required|integer',
-        // 'correlativo' => 'nullable|string', // <-- HABILITA ESTO SI HACES EDITABLE EL CAMPO EN LA VISTA
-    ]);
+    public function update(Request $request, $id)
+    {
+        // 1. Validar los datos recibidos
+        $request->validate([
+            'cliente_id' => 'required|integer',
+            'fecha' => 'required|date',
+            'subtotal' => 'required|numeric',
+            'iva' => 'required|numeric',
+            'descuento' => 'nullable|numeric',
+            'total' => 'required|numeric',
+            'condiciones_pago' => 'nullable|string',
+            'validez' => 'nullable|date',
+            'descripcion' => 'required|array', // Códigos de producto (ahora son IDs)
+            'cantidad' => 'required|array', // Cantidades (array asociativo)
+            'empresa_id' => 'required|integer',
+            'porcentaje_aplicado' => 'required|numeric', // ¡NUEVA VALIDACIÓN!
+            // 'correlativo' => 'nullable|string', // <-- HABILITA ESTO SI HACES EDITABLE EL CAMPO EN LA VISTA
+        ]);
 
-    // Usar una transacción asegura que si algo falla, los cambios se revierten.
-    DB::beginTransaction();
-    try {
-        // 2. Encontrar el presupuesto existente
-        $presupuesto = Presupuesto::findOrFail($id);
+        // Usar una transacción asegura que si algo falla, los cambios se revierten.
+        DB::beginTransaction();
+        try {
+            // 2. Encontrar el presupuesto existente
+            $presupuesto = Presupuesto::findOrFail($id);
 
-        // 3. Preparar los datos para la actualización
-        $dataToUpdate = [
-            'cliente_id' => $request->cliente_id,
-            'fecha' => $request->fecha,
-            'subtotal' => $request->subtotal,
-            'iva' => $request->iva,
-            'descuento' => $request->descuento ?? 0,
-            'total' => $request->total,
-            'condiciones_pago' => $request->condiciones_pago ?: null,
-            'validez' => $request->validez ?: null,
-            'empresa_id' => $request->empresa_id,
-            'status' => 1
-        ];
+            // 3. Preparar los datos para la actualización
+            $dataToUpdate = [
+                'cliente_id' => $request->cliente_id,
+                'fecha' => $request->fecha,
+                'subtotal' => $request->subtotal,
+                'iva' => $request->iva,
+                'descuento' => $request->descuento ?? 0,
+                'total' => $request->total,
+                'condiciones_pago' => $request->condiciones_pago ?: null,
+                'validez' => $request->validez ?: null,
+                'empresa_id' => $request->empresa_id,
+                'porcentaje' => $request->porcentaje_aplicado, // ¡GUARDAR EL PORCENTAJE APLICADO!
+                'status' => 1
+            ];
 
-        // **OPCIÓN PARA CORRELATIVO EDITABLE:**
-        // Si haces el campo 'correlativo' editable en la vista y lo envías:
-        /*
-        if ($request->has('correlativo')) {
-            $dataToUpdate['correlativo'] = $request->correlativo;
-        }
-        */
+            // 4. Actualizar el presupuesto (El correlativo se mantiene si no se envía)
+            $presupuesto->update($dataToUpdate);
 
-        // 4. Actualizar el presupuesto (El correlativo se mantiene si no se envía)
-        $presupuesto->update($dataToUpdate);
+            // 5. Actualizar los ítems asociados a este presupuesto
+            // a. Eliminar ítems antiguos
+            $presupuesto->items()->delete();
 
-        // 5. Actualizar los ítems asociados a este presupuesto
-        // a. Eliminar ítems antiguos
-        $presupuesto->items()->delete();
+            // b. Crear nuevos ítems
+            // La clave del array 'cantidad' es el ID del producto (asumo que se envía el ID, no el código)
+            foreach ($request->descripcion as $productoId) {
+                $cantidad = $request->cantidad[$productoId];
 
-        // b. Crear nuevos ítems
-        // La clave del array 'cantidad' es el código del producto
-        foreach ($request->descripcion as $codigoproducto) {
-            $cantidad = $request->cantidad[$codigoproducto];
+                // Obtener el precio unitario BASE del inventario buscando por 'ID' (asumo que 'descripcion' trae IDs)
+                $inventarioItem = Inventario::find($productoId);
+                if (!$inventarioItem) {
+                    throw new \Exception("El producto con ID {$productoId} no fue encontrado.");
+                }
 
-            // Obtener el precio unitario BASE del inventario buscando por 'codigo'
-            $inventarioItem = Inventario::where('codigo', $codigoproducto)->first();
-            if (!$inventarioItem) {
-                throw new \Exception("El producto con código {$codigoproducto} no fue encontrado.");
+                // Ajustar el precio unitario según la empresa (Lógica de Precio)
+                $preciounitario = $inventarioItem->precio_unitario;
+
+                if ($request->empresa_id != 1) {
+                    // Obtener el valor dinámico del porcentaje aplicado
+                    $porcentajeAplicado = $request->porcentaje_aplicado;
+                    $factorPorcentaje = $porcentajeAplicado / 100;
+
+                    // Lógica de cálculo dinámica
+                    if ($factorPorcentaje > 0) {
+                        $preciounitario /= $factorPorcentaje;
+                    }
+                    // LÍNEA COMENTADA QUE REEMPLAZA AL VALOR FIJO ANTERIOR:
+                    // $preciounitario /= 0.45;
+                }
+
+                $preciototal = $cantidad * $preciounitario;
+
+                Items::create([
+                    'presupuesto_id' => $presupuesto->id,
+                    'codigo' => $inventarioItem->codigo,
+                    'descripcion' => $inventarioItem->descripcion,
+                    'cantidad' => $cantidad,
+                    'precio_unitario' => $preciounitario,
+                    'precio_total' => $preciototal
+                ]);
             }
-            
-            // Se usa el precio BASE del inventario para guardar en DB. 
-            $preciounitario = $inventarioItem->precio_unitario; 
-            $preciototal = $cantidad * $preciounitario; 
 
-            Items::create([
-                'presupuesto_id' => $presupuesto->id,
-                'codigo' => $codigoproducto,
-                'descripcion' => $inventarioItem->descripcion,
-                'cantidad' => $cantidad,
-                'precio_unitario' => $preciounitario,
-                'precio_total' => $preciototal
-            ]);
+            DB::commit(); // Confirmar los cambios
+
+        } catch (\Exception $e) {
+            DB::rollBack(); // Deshacer si hubo un error
+            return redirect()->back()->withErrors(['error' => $e->getMessage()]);
         }
 
-        DB::commit(); // Confirmar los cambios
+        // 6. Cargar los ítems recién creados y retornar la vista de confirmación
+        $presupuesto->load(['items', 'cliente', 'empresa']);
 
-    } catch (\Exception $e) {
-        DB::rollBack(); // Deshacer si hubo un error
-        return redirect()->back()->withErrors(['error' => $e->getMessage()]);
+        return view('factura.cargar', [
+            'presupuesto' => $presupuesto,
+            'items' => $presupuesto->items
+        ])->with('success', 'Presupuesto actualizado con éxito.');
     }
 
-    // 6. Cargar los ítems recién creados y retornar la vista de confirmación
-    $presupuesto->load(['items', 'cliente', 'empresa']);
-
-    return view('factura.cargar', [
-        'presupuesto' => $presupuesto,
-        'items' => $presupuesto->items
-    ])->with('success', 'Presupuesto actualizado con éxito.');
-}
-  
-  
 /* public function update(Request $request, $id)
 {
     // 1. Validar los datos recibidos
