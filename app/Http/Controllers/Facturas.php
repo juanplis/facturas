@@ -461,106 +461,103 @@ public function eliminar($id)
 
 
     public function update(Request $request, $id)
-    {
-        // 1. Validar los datos recibidos
-        $request->validate([
-            'cliente_id' => 'required|integer',
-            'fecha' => 'required|date',
-            'subtotal' => 'required|numeric',
-            'iva' => 'required|numeric',
-            'descuento' => 'nullable|numeric',
-            'total' => 'required|numeric',
-            'condiciones_pago' => 'nullable|string',
-            'validez' => 'nullable|date',
-            'descripcion' => 'required|array', // Códigos de producto (ahora son IDs)
-            'cantidad' => 'required|array', // Cantidades (array asociativo)
-            'empresa_id' => 'required|integer',
-            'porcentaje_aplicado' => 'required|numeric', // ¡NUEVA VALIDACIÓN!
-            // 'correlativo' => 'nullable|string', // <-- HABILITA ESTO SI HACES EDITABLE EL CAMPO EN LA VISTA
-        ]);
+{
+    // 1. Validar los datos recibidos
+    $request->validate([
+        'cliente_id' => 'required|integer',
+        'fecha' => 'required|date',
+        'subtotal' => 'required|numeric',
+        'iva' => 'required|numeric',
+        'descuento' => 'nullable|numeric',
+        'total' => 'required|numeric',
+        'condiciones_pago' => 'nullable|string',
+        'validez' => 'nullable|date',
+        'descripcion' => 'required|array', // Códigos de producto (ahora son IDs)
+        'cantidad' => 'required|array', // Cantidades (array asociativo)
+        'empresa_id' => 'required|integer',
+        'porcentaje_aplicado' => 'required|numeric', // Validación del porcentaje aplicado
+    ]);
 
-        // Usar una transacción asegura que si algo falla, los cambios se revierten.
-        DB::beginTransaction();
-        try {
-            // 2. Encontrar el presupuesto existente
-            $presupuesto = Presupuesto::findOrFail($id);
+    // Usar una transacción asegura que si algo falla, los cambios se revierten.
+    DB::beginTransaction();
+    try {
+        // 2. Encontrar el presupuesto existente
+        $presupuesto = Presupuesto::findOrFail($id);
 
-            // 3. Preparar los datos para la actualización
-            $dataToUpdate = [
-                'cliente_id' => $request->cliente_id,
-                'fecha' => $request->fecha,
-                'subtotal' => $request->subtotal,
-                'iva' => $request->iva,
-                'descuento' => $request->descuento ?? 0,
-                'total' => $request->total,
-                'condiciones_pago' => $request->condiciones_pago ?: null,
-                'validez' => $request->validez ?: null,
-                'empresa_id' => $request->empresa_id,
-                'porcentaje' => $request->porcentaje_aplicado, // ¡GUARDAR EL PORCENTAJE APLICADO!
-                'status' => 1
-            ];
+        // 3. Preparar los datos para la actualización
+        $dataToUpdate = [
+            'cliente_id' => $request->cliente_id,
+            'fecha' => $request->fecha,
+            'subtotal' => $request->subtotal,
+            'iva' => $request->iva,
+            'descuento' => $request->descuento ?? 0,
+            'total' => $request->total,
+            'condiciones_pago' => $request->condiciones_pago ?: null,
+            'validez' => $request->validez ?: null,
+            'empresa_id' => $request->empresa_id,
+            'porcentaje' => $request->porcentaje_aplicado, // Guardar el porcentaje aplicado
+            'status' => 1
+        ];
 
-            // 4. Actualizar el presupuesto (El correlativo se mantiene si no se envía)
-            $presupuesto->update($dataToUpdate);
+        // 4. Actualizar el presupuesto (El correlativo se mantiene si no se envía)
+        $presupuesto->update($dataToUpdate);
 
-            // 5. Actualizar los ítems asociados a este presupuesto
-            // a. Eliminar ítems antiguos
-            $presupuesto->items()->delete();
+        // 5. Actualizar los ítems asociados a este presupuesto
+        // a. Eliminar ítems antiguos
+        $presupuesto->items()->delete();
 
-            // b. Crear nuevos ítems
-            // La clave del array 'cantidad' es el ID del producto (asumo que se envía el ID, no el código)
-            foreach ($request->descripcion as $productoId) {
-                $cantidad = $request->cantidad[$productoId];
+        // b. Crear nuevos ítems
+        foreach ($request->descripcion as $productoCodigo) {
+            $cantidad = $request->cantidad[$productoCodigo];
 
-                // Obtener el precio unitario BASE del inventario buscando por 'ID' (asumo que 'descripcion' trae IDs)
-                $inventarioItem = Inventario::find($productoId);
-                if (!$inventarioItem) {
-                    throw new \Exception("El producto con ID {$productoId} no fue encontrado.");
-                }
-
-                // Ajustar el precio unitario según la empresa (Lógica de Precio)
-                $preciounitario = $inventarioItem->precio_unitario;
-
-                if ($request->empresa_id != 1) {
-                    // Obtener el valor dinámico del porcentaje aplicado
-                    $porcentajeAplicado = $request->porcentaje_aplicado;
-                    $factorPorcentaje = $porcentajeAplicado / 100;
-
-                    // Lógica de cálculo dinámica
-                    if ($factorPorcentaje > 0) {
-                        $preciounitario /= $factorPorcentaje;
-                    }
-                    // LÍNEA COMENTADA QUE REEMPLAZA AL VALOR FIJO ANTERIOR:
-                    // $preciounitario /= 0.45;
-                }
-
-                $preciototal = $cantidad * $preciounitario;
-
-                Items::create([
-                    'presupuesto_id' => $presupuesto->id,
-                    'codigo' => $inventarioItem->codigo,
-                    'descripcion' => $inventarioItem->descripcion,
-                    'cantidad' => $cantidad,
-                    'precio_unitario' => $preciounitario,
-                    'precio_total' => $preciototal
-                ]);
+            // Obtener el precio unitario BASE del inventario buscando por 'código'
+            $inventarioItem = Inventario::where('codigo', $productoCodigo)->first();
+            if (!$inventarioItem) {
+                throw new \Exception("El producto con código {$productoCodigo} no fue encontrado.");
             }
 
-            DB::commit(); // Confirmar los cambios
+            // Ajustar el precio unitario según la empresa (Lógica de Precio)
+            $precioUnitario = $inventarioItem->precio_unitario;
 
-        } catch (\Exception $e) {
-            DB::rollBack(); // Deshacer si hubo un error
-            return redirect()->back()->withErrors(['error' => $e->getMessage()]);
+            if ($request->empresa_id != 1) {
+                // Obtener el valor dinámico del porcentaje aplicado
+                $porcentajeAplicado = $request->porcentaje_aplicado;
+                $factorPorcentaje = $porcentajeAplicado;
+
+                // Lógica de cálculo dinámica
+                if ($factorPorcentaje > 0) {
+                    $precioUnitario /= $factorPorcentaje;
+                }
+            }
+
+            $precioTotal = $cantidad * $precioUnitario;
+
+            Items::create([
+                'presupuesto_id' => $presupuesto->id,
+                'codigo' => $inventarioItem->codigo,
+                'descripcion' => $inventarioItem->descripcion,
+                'cantidad' => $cantidad,
+                'precio_unitario' => $precioUnitario,
+                'precio_total' => $precioTotal
+            ]);
         }
 
-        // 6. Cargar los ítems recién creados y retornar la vista de confirmación
-        $presupuesto->load(['items', 'cliente', 'empresa']);
+        DB::commit(); // Confirmar los cambios
 
-        return view('factura.cargar', [
-            'presupuesto' => $presupuesto,
-            'items' => $presupuesto->items
-        ])->with('success', 'Presupuesto actualizado con éxito.');
+    } catch (\Exception $e) {
+        DB::rollBack(); // Deshacer si hubo un error
+        return redirect()->back()->withErrors(['error' => $e->getMessage()]);
     }
+
+    // 6. Cargar los ítems recién creados y retornar la vista de confirmación
+    $presupuesto->load(['items', 'cliente', 'empresa']);
+
+    return view('factura.cargar', [
+        'presupuesto' => $presupuesto,
+        'items' => $presupuesto->items
+    ])->with('success', 'Presupuesto actualizado con éxito.');
+}
+
 
 /* public function update(Request $request, $id)
 {

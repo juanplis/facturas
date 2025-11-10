@@ -4,6 +4,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- SweetAlert CDN -->
     @include('menu')
     <title>Tasa BCV</title>
     <style>
@@ -32,21 +33,16 @@
         <div class="row mb-3">
             <div class="col-md-10">
                 <h4>Agregar Porcentaje</h4>
-                <form action="{{ route('manejo_porcentaje.store') }}" method="POST">
+                <form action="{{ route('manejo_porcentaje.store') }}" method="POST" id="porcentaje-form">
                     @csrf
 
                     <div class="form-group">
                         <label for="porcentaje">Porcentaje (Máx. 2 decimales, ej: 0.26):</label>
 
-                        {{-- INICIO DE LA FILA PARA ALINEAR INPUT Y ALERTA --}}
                         <div class="row">
-
-                            {{-- Columna para el Input con ID --}}
                             <div class="col-md-4">
-                                <input type="number" step="0.01" name="porcentaje" class="form-control" id="input-porcentaje" required>
+                                <input type="text" name="porcentaje" class="form-control" id="input-porcentaje" required>
                             </div>
-
-                            {{-- Columna para la Alerta --}}
                             <div class="col-md-8">
                                 <div class="alert alert-info p-2 m-0" style="font-size: 0.9em;">
                                     @if ($ultimo_porcentaje)
@@ -59,11 +55,9 @@
                                 </div>
                             </div>
                         </div>
-                        {{-- FIN DE LA FILA --}}
                     </div>
 
-                    <button type="submit" class="btn btn-success mt-2">Guardar Porcentaje</button>
-
+                    <button type="submit" class="btn btn-success mt-2" id="guardar-porcentaje">Guardar Porcentaje</button>
                 </form>
             </div>
         </div>
@@ -113,54 +107,104 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const inputPorcentaje = document.getElementById('input-porcentaje');
+            const formPorcentaje = document.getElementById('porcentaje-form');
 
-            if (inputPorcentaje) {
-                // Función principal que filtra y formatea mientras se escribe
-                function filtrarYFormatearDecimal(event) {
-                    let valor = inputPorcentaje.value;
+            // Función que filtra y formatea mientras se escribe
+            function filtrarYFormatearDecimal(event) {
+                let valor = inputPorcentaje.value;
 
-                    // 1. Limpieza inicial: Permite solo números y puntos
-                    valor = valor.replace(/[^0-9.]/g, '');
+                // Permitir solo números y puntos
+                valor = valor.replace(/[^0-9.]/g, '');
 
-                    // 2. Control de Múltiples Puntos
-                    let partes = valor.split('.');
-                    if (partes.length > 2) {
-                        // Si hay más de un punto, solo mantenemos el primero y eliminamos los demás
-                        valor = partes[0] + '.' + partes.slice(1).join('');
-                    }
+                // Control de Múltiples Puntos
+                let partes = valor.split('.');
+                if (partes.length > 2) {
+                    valor = partes[0] + '.' + partes.slice(1).join('');
+                }
 
-                    // 3. Restricción de Decimales (Máximo dos después del punto)
-                    partes = valor.split('.'); // Volvemos a dividir por si hubo corrección
-                    if (partes.length === 2 && partes[1].length > 2) {
-                        // Mantenemos solo los dos primeros decimales
-                        valor = partes[0] + '.' + partes[1].substring(0, 2);
-                    }
+                // Restricción de Decimales (Máximo dos después del punto)
+                partes = valor.split('.');
+                if (partes.length === 2 && partes[1].length > 2) {
+                    valor = partes[0] + '.' + partes[1].substring(0, 2);
+                }
 
-                    // 4. Conversión de enteros (26 -> 0.26) solo si el usuario escribió dos o más dígitos sin punto
-                    partes = valor.split('.');
-                    if (partes.length === 1 && partes[0].length >= 2) {
-                        let num = parseFloat(partes[0]);
-                        if (!isNaN(num) && num >= 1) {
-                            num = num / 100;
-                            // Reemplazamos el valor con el decimal formateado
-                            valor = num.toFixed(2);
-                        }
-                    }
-
-                    // 5. Caso especial: si el valor es solo un punto, lo convertimos a "0."
-                    if (valor === '.') {
-                        valor = '0.';
-                    }
-
-                    // Actualizar el valor del input solo si hubo cambios
-                    if (inputPorcentaje.value !== valor) {
-                        inputPorcentaje.value = valor;
+                // Conversión de enteros (26 -> 0.26) solo si el usuario escribió dos o más dígitos sin punto
+                partes = valor.split('.');
+                if (partes.length === 1 && partes[0].length >= 2) {
+                    let num = parseFloat(partes[0]);
+                    if (!isNaN(num) && num >= 1) {
+                        num = num / 100;
+                        valor = num.toFixed(2);
                     }
                 }
 
-                // Aplicar la función mientras el usuario interactúa (escribe o pega)
-                inputPorcentaje.addEventListener('input', filtrarYFormatearDecimal);
+                // Caso especial: si el valor es solo un punto, lo convertimos a "0."
+                if (valor === '.') {
+                    valor = '0.';
+                }
+
+                // Actualizar el valor del input solo si hubo cambios
+                if (inputPorcentaje.value !== valor) {
+                    inputPorcentaje.value = valor;
+                }
             }
+
+            // Aplicar la función mientras el usuario interactúa (escribe o pega)
+            inputPorcentaje.addEventListener('input', filtrarYFormatearDecimal);
+
+            // Confirmar antes de enviar el formulario
+            formPorcentaje.addEventListener('submit', function(event) {
+                event.preventDefault(); // Evitar el envío inmediato
+
+                // Usar SweetAlert para la confirmación
+                Swal.fire({
+                    title: '¿Está seguro?',
+                    text: "¿Desea guardar este porcentaje?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Sí, guardar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Enviar el formulario usando fetch para manejar la respuesta
+                        fetch(formPorcentaje.action, {
+                            method: 'POST',
+                            body: new FormData(formPorcentaje),
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire(
+                                    'Éxito!',
+                                    data.message,
+                                    'success'
+                                ).then(() => {
+                                    // Opcional: recargar la página o redirigir a otra
+                                    location.reload(); // Recargar la página
+                                });
+                            } else {
+                                Swal.fire(
+                                    'Error!',
+                                    data.message,
+                                    'error'
+                                );
+                            }
+                        })
+                        .catch(error => {
+                            Swal.fire(
+                                'Error!',
+                                'Hubo un problema al guardar el porcentaje.',
+                                'error'
+                            );
+                        });
+                    }
+                });
+            });
         });
     </script>
 </body>

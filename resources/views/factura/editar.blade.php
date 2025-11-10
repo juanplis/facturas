@@ -21,18 +21,20 @@
 
                     {{-- NUEVO CAMPO: Porcentaje de Inventario Aplicado --}}
                     {{-- Usamos el porcentaje guardado en el presupuesto o el valor por defecto del modelo PorcentajeInventario --}}
+
+
                     <div class="form-group">
+                        <label for="correlativo">Correlativo:</label>
+                        <input type="number" class="form-control" id="correlativo" value="{{ $presupuesto->correlativo }}" readonly>
+                    </div>
+
+                      <div class="form-group">
                         <label for="porcentaje_aplicado">Porcentaje de Inventario Aplicado (%):</label>
                         <input type="number" class="form-control" id="porcentaje_aplicado" name="porcentaje_aplicado" step="0.01"
                             value="{{ $presupuesto->porcentaje ?? ($porcentaje->porcentaje ?? 0) }}"
                             required
-                            oninput="generarCamposCantidad(); calcularTotales()">
+                            oninput="generarCamposCantidad(); calcularTotales()" readonly>
                         <small class="form-text text-muted">Este valor se usa para ajustar el precio unitario si la Empresa no es la principal (ID 1).</small>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="correlativo">Correlativo:</label>
-                        <span class="form-control-plaintext" id="correlativo">{{ $presupuesto->correlativo }}</span>
                     </div>
 
                     <div class="form-group">

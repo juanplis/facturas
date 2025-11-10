@@ -12,18 +12,24 @@ class PorcentajeController extends Controller
 
 
     public function store(Request $request)
-    {
-        // Validar el porcentaje
-        $request->validate([
-            'porcentaje' => 'required|numeric|min:0', // Asegúrate de que sea un número positivo
-        ]);
+{
+    // Validar el porcentaje
+    $request->validate([
+        'porcentaje' => 'required|numeric|min:0|max:100', // Asegúrate de que sea un número positivo y dentro del rango 0-100
+    ]);
 
+    try {
         // Crear un nuevo registro de porcentaje
         $porcentaje = new PorcentajeInventario();
-        $porcentaje->porcentaje = $request->porcentaje; // Asumiendo que el campo en la base de datos se llama 'valor'
+        $porcentaje->porcentaje = $request->porcentaje; // Asegúrate de que este campo sea correcto
         $porcentaje->save();
 
-        // Redireccionar a la vista anterior con un mensaje de éxito
-        return redirect()->back()->with('success', 'Porcentaje guardado exitosamente.');
+        // Devolver respuesta JSON de éxito
+        return response()->json(['success' => true, 'message' => 'Porcentaje guardado exitosamente.']);
+    } catch (\Exception $e) {
+        // Capturar cualquier error y devolver respuesta de error
+        return response()->json(['success' => false, 'message' => 'Error al guardar el porcentaje: ' . $e->getMessage()]);
     }
+}
+
 }
