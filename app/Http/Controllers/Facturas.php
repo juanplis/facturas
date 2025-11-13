@@ -680,14 +680,13 @@ public function update(Request $request, $id)
     ])->with('success', 'Presupuesto actualizado con éxito.');
 }*/
 
-
 public function status($id) {
     // Encuentra el presupuesto por ID
     $presupuesto = Presupuesto::find($id);
 
     // Verifica si el presupuesto existe
     if (!$presupuesto) {
-        return response()->json(['message' => 'Presupuesto no encontrado'], 404);
+        return redirect()->back()->with('error', 'Presupuesto no encontrado');
     }
 
     // Actualiza el campo 'presupuesto' con el nuevo estado que enviaste
@@ -697,8 +696,8 @@ public function status($id) {
     // Guarda los cambios en la base de datos
     $presupuesto->save();
 
-    // Devuelve una respuesta exitosa
-    return response()->json(['message' => 'Presupuesto actualizado con éxito']);
+    // Devuelve una respuesta exitosa redirigiendo a la vista con un mensaje de éxito
+    return redirect()->back()->with('success', 'Presupuesto actualizado con éxito');
 }
 
 

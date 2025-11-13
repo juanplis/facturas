@@ -38,7 +38,6 @@
 @php
     $userName = session('user_name');
     $profileType = session('profile_type');
-    $token = session('profile_type');
 @endphp
     <div class="container mt-5">
         <h3>Lista de Presupuestos</h3>
@@ -98,83 +97,76 @@
                             @endif
                         </td>
                         <td>
-                         <a href="{{ route('factura.edita', $presupuesto->id) }}" class="btn btn-primary">
-        <i class="fas fa-pencil-alt"></i>
-    </a>
-    <form action="{{ route('factura.elimina', $presupuesto->id) }}" method="POST" class="delete-form" style="display:inline;">
-        @csrf
-        @method('DELETE')
-        <button type="submit" class="btn btn-danger delete-button" data-id="{{ $presupuesto->id }}">
-            <i class="fas fa-trash-alt"></i>
-        </button>
-    </form>
+                            <a href="{{ route('factura.edita', $presupuesto->id) }}" class="btn btn-primary">
+                                <i class="fas fa-pencil-alt"></i>
+                            </a>
+                            <form action="{{ route('factura.elimina', $presupuesto->id) }}" method="POST" class="delete-form" style="display:inline;">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger delete-button" data-id="{{ $presupuesto->id }}">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </form>
 
-    <!-- Botón para enviar a EN EVALUACIÓN o APROBADO -->
-     @if($presupuesto->estado)
-    @if($presupuesto->estatus_presupuesto == 1)
-        <form action="{{ route('status.presupuesto', $presupuesto->id) }}" method="POST" style="display:inline;">
-            @csrf
-            <input type="hidden" name="_method" value="PUT">
-            <input type="hidden" name="nuevo_estado" value="2"> <!-- Valor para EN EVALUACIÓN -->
-            <button type="submit" class="btn btn-success">
-                <i class="fas fa-check"></i> Evaluación
-            </button>
-        </form>
-    @elseif($presupuesto->estatus_presupuesto == 2)
-        <form action="{{ route('status.presupuesto', $presupuesto->id) }}" method="POST" style="display:inline;">
-            @csrf
-            <input type="hidden" name="_method" value="PUT">
-            <input type="hidden" name="nuevo_estado" value="3"> <!-- Valor para APROBADO -->
-            <button type="submit" class="btn btn-success">
-                <i class="fas fa-check"></i> Aprobar
-            </button>
-        </form>
-    @elseif($presupuesto->estatus_presupuesto == 3)
-        <form action="{{ route('status.presupuesto', $presupuesto->id) }}" method="POST" style="display:inline;">
-            @csrf
-            <input type="hidden" name="_method" value="PUT">
-            <input type="hidden" name="nuevo_estado" value="4"> <!-- Valor para FABRICACIÓN -->
-            <button type="submit" class="btn btn-success">
-                <i class="fas fa-check"></i> Fabricación
-            </button>
-        </form>
-    @elseif($presupuesto->estatus_presupuesto == 4)
-        <form action="{{ route('status.presupuesto', $presupuesto->id) }}" method="POST" style="display:inline;">
-            @csrf
-            <input type="hidden" name="_method" value="PUT">
-            <input type="hidden" name="nuevo_estado" value="5"> <!-- Valor para ENTREGADO -->
-            <button type="submit" class="btn btn-success">
-                <i class="fas fa-check"></i> Entregado
-            </button>
-        </form>
-    @elseif($presupuesto->estatus_presupuesto == 5)
-        <!-- No se muestra ningún botón -->
-        <span class="text-muted"></span>
-    @endif
+                            <!-- Botón para enviar a EN EVALUACIÓN o APROBADO -->
+                            @if($presupuesto->estado)
+                                @if($presupuesto->estatus_presupuesto == 1)
+                                    <form action="{{ route('status.presupuesto', $presupuesto->id) }}" method="POST" class="status-form" style="display:inline;">
+                                        @csrf
+                                        <input type="hidden" name="_method" value="PUT">
+                                        <input type="hidden" name="nuevo_estado" value="2"> <!-- Valor para EN EVALUACIÓN -->
+                                        <button type="submit" class="btn btn-success status-button">
+                                            <i class="fas fa-check"></i> Evaluación
+                                        </button>
+                                    </form>
+                                @elseif($presupuesto->estatus_presupuesto == 2)
+                                    <form action="{{ route('status.presupuesto', $presupuesto->id) }}" method="POST" class="status-form" style="display:inline;">
+                                        @csrf
+                                        <input type="hidden" name="_method" value="PUT">
+                                        <input type="hidden" name="nuevo_estado" value="3"> <!-- Valor para APROBADO -->
+                                        <button type="submit" class="btn btn-success status-button">
+                                            <i class="fas fa-check"></i> Aprobar
+                                        </button>
+                                    </form>
+                                @elseif($presupuesto->estatus_presupuesto == 3)
+                                    <form action="{{ route('status.presupuesto', $presupuesto->id) }}" method="POST" class="status-form" style="display:inline;">
+                                        @csrf
+                                        <input type="hidden" name="_method" value="PUT">
+                                        <input type="hidden" name="nuevo_estado" value="4"> <!-- Valor para FABRICACIÓN -->
+                                        <button type="submit" class="btn btn-success status-button">
+                                            <i class="fas fa-check"></i> Fabricación
+                                        </button>
+                                    </form>
+                                @elseif($presupuesto->estatus_presupuesto == 4)
+                                    <form action="{{ route('status.presupuesto', $presupuesto->id) }}" method="POST" class="status-form" style="display:inline;">
+                                        @csrf
+                                        <input type="hidden" name="_method" value="PUT">
+                                        <input type="hidden" name="nuevo_estado" value="5"> <!-- Valor para ENTREGADO -->
+                                        <button type="submit" class="btn btn-success status-button">
+                                            <i class="fas fa-check"></i> Entregado
+                                        </button>
+                                    </form>
+                                @elseif($presupuesto->estatus_presupuesto == 5)
+                                    <!-- No se muestra ningún botón -->
+                                    <span class="text-muted"></span>
+                                @endif
 
-    <!-- Botón para anular (solo si el estado es 1, 2, 3 o 4) -->
-    @if($presupuesto->estatus_presupuesto >= 1 && $presupuesto->estatus_presupuesto < 2)
-
-        <form action="{{ route('status.presupuesto', $presupuesto->id) }}" method="POST" style="display:inline;">
-            @csrf
-            <input type="hidden" name="_method" value="PUT">
-            <input type="hidden" name="nuevo_estado" value="0"> <!-- Valor para ANULAR -->
-            <button type="submit" class="btn btn-danger">
-                <i class="fas fa-ban"></i> Anular
-            </button>
-        </form>
-    @endif
-@endif
-
-
-
+                                <!-- Botón para anular (solo si el estado es 1, 2, 3 o 4) -->
+                                @if($presupuesto->estatus_presupuesto >= 1 && $presupuesto->estatus_presupuesto < 2)
+                                    <form action="{{ route('status.presupuesto', $presupuesto->id) }}" method="POST" class="status-form" style="display:inline;">
+                                        @csrf
+                                        <input type="hidden" name="_method" value="PUT">
+                                        <input type="hidden" name="nuevo_estado" value="0"> <!-- Valor para ANULAR -->
+                                        <button type="submit" class="btn btn-danger status-button">
+                                            <i class="fas fa-ban"></i> Anular
+                                        </button>
+                                    </form>
+                                @endif
+                            @endif
                         </td>
 
                         <!-- Sección para los PDFs -->
-                       <!-- Sección para los PDFs -->
                         <td>
-
-
                             <!-- Siempre mostrar el enlace para descargar el presupuesto -->
                             @if($presupuesto->estatus_presupuesto <= 5)
                                 <a href="{{ route('presupuestos.pdf', $presupuesto->id) }}" class="btn btn-primary" title="Presupuesto {{ $presupuesto->id }}">
@@ -193,7 +185,6 @@
                                     <i class="fas fa-file-pdf"></i>
                                 </a>
                             @endif
-
                         </td>
                     </tr>
                     @endforeach
@@ -219,9 +210,6 @@
                 form.addEventListener('submit', function(event) {
                     event.preventDefault(); // Prevenir el envío del formulario
 
-                    const formData = new FormData(form);
-                    const id = form.querySelector('.delete-button').getAttribute('data-id');
-
                     Swal.fire({
                         title: '¿Estás seguro?',
                         text: "¡No podrás revertir esto!",
@@ -230,6 +218,32 @@
                         confirmButtonColor: '#d33',
                         cancelButtonColor: '#3085d6',
                         confirmButtonText: 'Sí, eliminarlo!',
+                        cancelButtonText: 'Cancelar'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit(); // Enviar el formulario si el usuario confirma
+                        }
+                    });
+                });
+            });
+
+            // Manejar el evento de envío de formularios de cambio de estado
+            const statusForms = document.querySelectorAll('.status-form');
+
+            statusForms.forEach(form => {
+                form.addEventListener('submit', function(event) {
+                    event.preventDefault(); // Prevenir el envío del formulario
+
+                    const nuevoEstado = form.querySelector('input[name="nuevo_estado"]').value;
+
+                    Swal.fire({
+                        title: '¿Estás seguro?',
+                        text: `¿Deseas cambiar el estado a ${nuevoEstado}?`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Sí, cambiar!',
                         cancelButtonText: 'Cancelar'
                     }).then((result) => {
                         if (result.isConfirmed) {
