@@ -1,4 +1,4 @@
-	<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <!-- Enlace a Bootstrap CSS -->
@@ -42,92 +42,169 @@
 @endphp
     <div class="container mt-5">
         <h3>Lista de Presupuestos</h3>
-      
-        <form action="{{ route('factura.index') }}" method="GET" class="mb-3">
 
-      <div class="input-group">
+        <form action="{{ route('factura.index') }}" method="GET" class="mb-3">
+            <div class="input-group">
                 <input type="text" name="search" class="form-control" placeholder="Buscar por cliente, empresa o fecha..." value="{{ request('search') }}">
                 <div class="input-group-append">
                     <button class="btn btn-outline-secondary" type="submit">Buscar</button>
                 </div>
             </div>
-          
-        @if( $profileType==1 or $profileType==2 )
-        <a href="{{ route('buscar', ['id' => 1]) }}" class="btn btn-success mb-3">Crear Presupuesto Steel</a>
-		@endif    
-          
-          
-        <a href="{{ route('buscar', ['id' => 2]) }}" class="btn btn-primary mb-3">Crear Presupuesto TuCocina</a>
 
-        <table class="table table-bordered">
-            <thead class="thead-light">
-                <tr>
-                    <th>N°</th>
-                    <th>Cliente</th>
-                    <th>Empresa</th>
-                    <th>Fecha</th>
-                    <th>Subtotal</th>
-                    <th>IVA</th>
-                    <th>Total</th>
-                    <th>Condiciones de Pago</th>
-                    <!--th>Tiempo Entrega</th-->
-                    <th>Validez</th>
-                    <th>Estatus</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($presupuestos as $presupuesto)
-                <tr>
-                    <td>{{ $presupuesto->id }}</td>
-                    <td>{{ $presupuesto->cliente->nombre }}</td>
-                    <td>{{ $presupuesto->empresa->razon_social }}</td>
-                    <td>{{ $presupuesto->fecha }}</td>
-                    <td>{{ number_format($presupuesto->subtotal, 2, ',', '.') }} </td>
-                    <td>{{ number_format($presupuesto->iva, 2, ',', '.') }} </td>
-                    <td>{{ number_format($presupuesto->total, 2, ',', '.') }} </td>
-                    <td>{{ $presupuesto->condiciones_pago }}</td>
-                    <!--td>{{ $presupuesto->tiempo_entrega }}</td-->
-                    <td>{{ $presupuesto->validez }}</td>
-                    <td>
-                        @if($presupuesto->estado)
-                            <span class="estatus-badge estatus-{{ $presupuesto->estado->estatus ? 'activo' : 'inactivo' }}">
-                                {{ $presupuesto->estado->nombre }}
-                            </span>
-                        @else
-                            <span class="text-muted">Estado no disponible</span>
-                        @endif
-                    </td>
-                    <td>
-                        <!-- <a href="{{ route('factura.ver', $presupuesto->id) }}" class="btn btn-info">*
-                            <i class="fas fa-eye"></i>
-                        </a>-->
-                        <a href="{{ route('factura.edita', $presupuesto->id) }}" class="btn btn-primary">
-                            <i class="fas fa-pencil-alt"></i>
-                        </a>
-                        <form action="{{ route('factura.elimina', $presupuesto->id) }}" method="POST" class="delete-form" style="display:inline;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger delete-button" data-id="{{ $presupuesto->id }}">
-                                <i class="fas fa-trash-alt"></i>
-                            </button>
-                        </form>
-                        <a href="{{ route('presupuestos.pdf', $presupuesto->id) }}" class="btn btn-success" title="Descargar PDF">
-                            <i class="fas fa-file-pdf"></i>
-                        </a>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
+            @if( $profileType==1 or $profileType==2 )
+            <a href="{{ route('buscar', ['id' => 1]) }}" class="btn btn-success mb-3">Crear Presupuesto Steel</a>
+            @endif
 
-        <!-- Paginación -->
-        <div class="d-flex justify-content-center">
+            <a href="{{ route('buscar', ['id' => 2]) }}" class="btn btn-primary mb-3">Crear Presupuesto TuCocina</a>
 
-            {{ $presupuestos->appends(request()->except('page'))->links('pagination::bootstrap-4') }} <!-- Esto genera los enlaces de paginación -->
-        </div>
-             </form>
+            <table class="table table-bordered">
+                <thead class="thead-light">
+                    <tr>
+                        <th>N°</th>
+                        <th>Creado Por</th>
+                        <th>Cliente</th>
+                        <th>Empresa</th>
+                        <th>Fecha</th>
+                        <th>Subtotal</th>
+                        <th>IVA</th>
+                        <th>Total</th>
+                        <th>Condiciones de Pago</th>
+                        <th>Validez</th>
+                        <th>Estatus</th>
+                        <th>Acciones</th>
+                        <th>Descargar Pdf</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($presupuestos as $presupuesto)
+                    <tr>
+                        <td>{{ $presupuesto->id }}</td>
+                        <td>{{ $presupuesto->user->name ?? 'Sin nombre' }}</td>
+                        <td>{{ $presupuesto->cliente->nombre }}</td>
+                        <td>{{ $presupuesto->empresa->razon_social }}</td>
+                        <td>{{ $presupuesto->fecha }}</td>
+                        <td>{{ number_format($presupuesto->subtotal, 2, ',', '.') }} </td>
+                        <td>{{ number_format($presupuesto->iva, 2, ',', '.') }} </td>
+                        <td>{{ number_format($presupuesto->total, 2, ',', '.') }} </td>
+                        <td>{{ $presupuesto->condiciones_pago }}</td>
+                        <td>{{ $presupuesto->validez }}</td>
+                        <td>
+                            @if($presupuesto->estatus_presupuesto)
+                                <span class="estatus-badge estatus-{{ $presupuesto->estado->estatus ? 'activo' : 'inactivo' }}">
+                                    {{ $presupuesto->estado->nombre }}
+                                </span>
+                            @else
+                                <span class="bg-danger text-white p-2 rounded">{{ $presupuesto->estado->nombre }}</span>
+                            @endif
+                        </td>
+                        <td>
+                         <a href="{{ route('factura.edita', $presupuesto->id) }}" class="btn btn-primary">
+        <i class="fas fa-pencil-alt"></i>
+    </a>
+    <form action="{{ route('factura.elimina', $presupuesto->id) }}" method="POST" class="delete-form" style="display:inline;">
+        @csrf
+        @method('DELETE')
+        <button type="submit" class="btn btn-danger delete-button" data-id="{{ $presupuesto->id }}">
+            <i class="fas fa-trash-alt"></i>
+        </button>
+    </form>
 
+    <!-- Botón para enviar a EN EVALUACIÓN o APROBADO -->
+     @if($presupuesto->estado)
+    @if($presupuesto->estatus_presupuesto == 1)
+        <form action="{{ route('status.presupuesto', $presupuesto->id) }}" method="POST" style="display:inline;">
+            @csrf
+            <input type="hidden" name="_method" value="PUT">
+            <input type="hidden" name="nuevo_estado" value="2"> <!-- Valor para EN EVALUACIÓN -->
+            <button type="submit" class="btn btn-success">
+                <i class="fas fa-check"></i> Evaluación
+            </button>
+        </form>
+    @elseif($presupuesto->estatus_presupuesto == 2)
+        <form action="{{ route('status.presupuesto', $presupuesto->id) }}" method="POST" style="display:inline;">
+            @csrf
+            <input type="hidden" name="_method" value="PUT">
+            <input type="hidden" name="nuevo_estado" value="3"> <!-- Valor para APROBADO -->
+            <button type="submit" class="btn btn-success">
+                <i class="fas fa-check"></i> Aprobar
+            </button>
+        </form>
+    @elseif($presupuesto->estatus_presupuesto == 3)
+        <form action="{{ route('status.presupuesto', $presupuesto->id) }}" method="POST" style="display:inline;">
+            @csrf
+            <input type="hidden" name="_method" value="PUT">
+            <input type="hidden" name="nuevo_estado" value="4"> <!-- Valor para FABRICACIÓN -->
+            <button type="submit" class="btn btn-success">
+                <i class="fas fa-check"></i> Fabricación
+            </button>
+        </form>
+    @elseif($presupuesto->estatus_presupuesto == 4)
+        <form action="{{ route('status.presupuesto', $presupuesto->id) }}" method="POST" style="display:inline;">
+            @csrf
+            <input type="hidden" name="_method" value="PUT">
+            <input type="hidden" name="nuevo_estado" value="5"> <!-- Valor para ENTREGADO -->
+            <button type="submit" class="btn btn-success">
+                <i class="fas fa-check"></i> Entregado
+            </button>
+        </form>
+    @elseif($presupuesto->estatus_presupuesto == 5)
+        <!-- No se muestra ningún botón -->
+        <span class="text-muted"></span>
+    @endif
+
+    <!-- Botón para anular (solo si el estado es 1, 2, 3 o 4) -->
+    @if($presupuesto->estatus_presupuesto >= 1 && $presupuesto->estatus_presupuesto < 2)
+
+        <form action="{{ route('status.presupuesto', $presupuesto->id) }}" method="POST" style="display:inline;">
+            @csrf
+            <input type="hidden" name="_method" value="PUT">
+            <input type="hidden" name="nuevo_estado" value="0"> <!-- Valor para ANULAR -->
+            <button type="submit" class="btn btn-danger">
+                <i class="fas fa-ban"></i> Anular
+            </button>
+        </form>
+    @endif
+@endif
+
+
+
+                        </td>
+
+                        <!-- Sección para los PDFs -->
+                       <!-- Sección para los PDFs -->
+                        <td>
+
+
+                            <!-- Siempre mostrar el enlace para descargar el presupuesto -->
+                            @if($presupuesto->estatus_presupuesto <= 5)
+                                <a href="{{ route('presupuestos.pdf', $presupuesto->id) }}" class="btn btn-primary" title="Presupuesto {{ $presupuesto->id }}">
+                                    <i class="fas fa-file-pdf"></i>
+                                </a>
+                            @endif
+
+                            @if($presupuesto->estatus_presupuesto >= 4)
+                                <a href="{{ route('presupuestos.pdf.orden', $presupuesto->id) }}" class="btn btn-success" title="Orden de Producción - Presupuesto {{ $presupuesto->id }}">
+                                    <i class="fas fa-file-pdf"></i>
+                                </a>
+                            @endif
+
+                            @if($presupuesto->estatus_presupuesto > 4 )
+                                <a href="{{ route('presupuestos.pdf.nota', $presupuesto->id) }}" class="btn btn-danger" title="Nota de entrega - Presupuesto {{ $presupuesto->id }}">
+                                    <i class="fas fa-file-pdf"></i>
+                                </a>
+                            @endif
+
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+
+            <!-- Paginación -->
+            <div class="d-flex justify-content-center">
+                {{ $presupuestos->appends(request()->except('page'))->links('pagination::bootstrap-4') }} <!-- Esto genera los enlaces de paginación -->
+            </div>
+        </form>
     </div>
 
     <!-- Incluir el script de SweetAlert2 -->

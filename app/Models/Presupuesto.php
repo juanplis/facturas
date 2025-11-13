@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\Empresa; // <-- ¡Asegúrate de que esta línea exista y sea correcta!
 
+use App\Models\User; // <-- ¡Asegúrate de que esta línea exista y sea correcta!
 
 
 
@@ -28,6 +29,8 @@ class Presupuesto extends Model
         'estatus_presupuesto',
       	'iva',
 		'descuento',
+        'user_id'
+
 
         // Agrega otros atributos que necesites
     ];
@@ -66,6 +69,13 @@ class Presupuesto extends Model
         // 'empresa_id' es la clave foránea en la tabla 'presupuestos'
         // que referencia a la clave primaria de la tabla 'empresas'
         return $this->belongsTo(Empresa::class, 'empresa_id');
+    }
+    // Relación con User (un presupuesto pertenece a un usuario)
+    public function user(): BelongsTo
+    {
+      //  return $this->belongsTo(User::class, 'user_id');
+
+        return $this->belongsTo(User::class);
     }
 
 }

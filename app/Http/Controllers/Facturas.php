@@ -55,11 +55,12 @@ public function index()
         $search = $request->input('search');
 
         // Filtrar los presupuestos según el término de búsqueda
-        $presupuestos = Presupuesto::with('estado')
+        $presupuestos = Presupuesto::with(['estado', 'user'])
             ->when($search, function($query) use ($search) {
                 return $query->whereHas('cliente', function($q) use ($search) {
                     $q->where('nombre', 'LIKE', "%{$search}%");
                 })
+
                 ->orWhereHas('empresa', function($q) use ($search) {
                     $q->where('razon_social', 'LIKE', "%{$search}%");
                 })
@@ -85,6 +86,7 @@ public function index()
     // Verificar si el usuario existe y si la contraseña es correcta
     if ($usuario && Hash::check($request->password, $usuario->password)) {
  // Las credenciales son correctas
+                session(['user_id'=> $usuario->id]);
                 session(['user_name' => $usuario->name]);
                 session(['profile_type' => $usuario->perfil_id]);
 
@@ -177,6 +179,7 @@ public function buscar(Request $request, $id)
 }
 
 
+
 public function cargar(Request $request)
 {
     // 1. Validar los datos recibidos
@@ -192,7 +195,8 @@ public function cargar(Request $request)
         'cantidad' => 'required|array',
         'empresa_id' => 'required|integer',
         'correlativo' => 'required|integer', // Asegúrate de que el correlativo sea requerido y sea un entero
-        'porcentaje_aplicado' => 'required|numeric' // ¡NUEVA VALIDACIÓN!
+        'porcentaje_aplicado' => 'required|numeric', // ¡NUEVA VALIDACIÓN!
+		'user_id' => 'required|integer'
     ]);
 
     //dd( $request);
@@ -221,6 +225,7 @@ public function cargar(Request $request)
         'empresa_id' => $request->empresa_id,
         'correlativo' => $correlativoIncrementado,
         'porcentaje' => $request->porcentaje_aplicado, // ¡GUARDAR EL PORCENTAJE APLICADO!
+		'user_id' => $request->user_id,
         'status' => 1
     ]);
 
@@ -243,7 +248,7 @@ public function cargar(Request $request)
         if ($request->empresa_id != 1) {
             // Obtener el valor dinámico del porcentaje aplicado
             $porcentajeAplicado = $request->porcentaje_aplicado;
-            $factorPorcentaje = $porcentajeAplicado / 100;
+            $factorPorcentaje = $porcentajeAplicado ;
 
             // Lógica de cálculo dinámica
             if ($factorPorcentaje > 0) {
@@ -414,22 +419,35 @@ public function ver($id)
 public function eliminar($id)
 {
     $presupuesto = Presupuesto::find($id);
+
     if ($presupuesto) {
         // Primero, eliminar los items relacionados con el presupuesto
-        items::where('presupuesto_id', $id)->delete();
+        $itemsEliminados = items::where('presupuesto_id', $id)->delete();
 
         // Luego, eliminar el presupuesto
         $presupuesto->delete();
 
         return redirect()->back()->with('success', 'Presupuesto y sus items eliminados con éxito.');
     }
+
     return redirect()->back()->with('error', 'Presupuesto no encontrado.');
-
-
 }
 
 
-  public function editar($id)
+public function eliminar2($id)
+{
+    try {
+        $presupuesto = Presupuesto::findOrFail($id);
+         items::where('presupuesto_id', $id)->delete();
+
+        $presupuesto->delete();
+        return redirect()->route('factura.index')->with('success', 'Registro eliminado exitosamente.');
+    } catch (\Exception $e) {
+        return redirect()->route('factura.index')->with('error', 'Error al eliminar el registro: ' . $e->getMessage());
+    }
+}
+
+  public function editar11112025($id)
     {
         // 1. Obtener el monto del IVA
         $ivaModel = Iva::orderBy('id', 'desc')->first(); // Obtiene el último registro de IVA
@@ -459,8 +477,41 @@ public function eliminar($id)
         return view('factura.editar', compact('presupuesto', 'clientes', 'items', 'productos', 'iva', 'porcentaje'));
     }
 
+public function editar($id)
+{
+    // 1. Obtener el monto del IVA
+    $ivaModel = Iva::orderBy('id', 'desc')->first(); // Obtiene el último registro de IVA
+    $iva = $ivaModel ? $ivaModel->monto_iva : 0; // Manejar el caso donde no haya registro
 
-    public function update(Request $request, $id)
+    // 2. Obtener el porcentaje de inventario
+    $porcentajeInventarioModel = PorcentajeInventario::orderBy('id', 'desc')->first();
+    $porcentaje = $porcentajeInventarioModel ? $porcentajeInventarioModel : null;
+
+    // 3. Obtener el presupuesto por ID
+    $presupuesto = Presupuesto::find($id);
+
+    if (!$presupuesto) {
+        return redirect()->route('factura.index')->with('error', 'Presupuesto no encontrado.');
+    }
+
+    // 4. Obtener todos los clientes
+    $clientes = Clientes::all();
+
+    // 5. Obtener los ítems relacionados con el presupuesto
+    $items = $presupuesto->items; // Asegúrate de que la relación esté definida en el modelo Presupuesto
+
+    // 6. Obtener todos los productos del inventario
+    $productos = Inventario::all(); // Cambia esto si necesitas filtrar productos específicos
+
+    // 7. Obtener el nombre de la empresa utilizando el empresa_id
+    $empresa = Empresa::find($presupuesto->empresa_id); // Asegúrate de que 'empresa_id' está en el modelo Presupuesto
+    $nombreEmpresa = $empresa ? $empresa->razon_social : 'Empresa no encontrada';
+
+    // 8. Pasar datos a la vista
+    return view('factura.editar', compact('presupuesto', 'clientes', 'items', 'productos', 'iva', 'porcentaje', 'nombreEmpresa'));
+}
+
+public function update(Request $request, $id)
 {
     // 1. Validar los datos recibidos
     $request->validate([
@@ -475,7 +526,8 @@ public function eliminar($id)
         'descripcion' => 'required|array', // Códigos de producto (ahora son IDs)
         'cantidad' => 'required|array', // Cantidades (array asociativo)
         'empresa_id' => 'required|integer',
-        'porcentaje_aplicado' => 'required|numeric', // Validación del porcentaje aplicado
+        'user_id' => 'required|integer',
+        'porcentaje_aplicado' => 'required|numeric' // Validación del porcentaje aplicado
     ]);
 
     // Usar una transacción asegura que si algo falla, los cambios se revierten.
@@ -495,6 +547,7 @@ public function eliminar($id)
             'condiciones_pago' => $request->condiciones_pago ?: null,
             'validez' => $request->validez ?: null,
             'empresa_id' => $request->empresa_id,
+            'user_id' => $request->user_id,
             'porcentaje' => $request->porcentaje_aplicado, // Guardar el porcentaje aplicado
             'status' => 1
         ];
@@ -557,7 +610,6 @@ public function eliminar($id)
         'items' => $presupuesto->items
     ])->with('success', 'Presupuesto actualizado con éxito.');
 }
-
 
 /* public function update(Request $request, $id)
 {
@@ -627,4 +679,27 @@ public function eliminar($id)
         'items' => $presupuesto->items
     ])->with('success', 'Presupuesto actualizado con éxito.');
 }*/
+
+
+public function status($id) {
+    // Encuentra el presupuesto por ID
+    $presupuesto = Presupuesto::find($id);
+
+    // Verifica si el presupuesto existe
+    if (!$presupuesto) {
+        return response()->json(['message' => 'Presupuesto no encontrado'], 404);
+    }
+
+    // Actualiza el campo 'presupuesto' con el nuevo estado que enviaste
+    $nuevoEstado = request()->input('nuevo_estado'); // Obtiene el nuevo estado del formulario
+    $presupuesto->estatus_presupuesto = $nuevoEstado; // Asigna el nuevo estado al campo 'presupuesto'
+
+    // Guarda los cambios en la base de datos
+    $presupuesto->save();
+
+    // Devuelve una respuesta exitosa
+    return response()->json(['message' => 'Presupuesto actualizado con éxito']);
+}
+
+
  }

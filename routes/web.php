@@ -34,6 +34,9 @@ Route::get('/factura/editar/{id}', [Facturas::class, 'editar'])->name('factura.e
 Route::put('/factura/index/{id}', [Facturas::class, 'update'])->name('factura.update');
 Route::get('/factura/ver/{id}', [Facturas::class, 'ver'])->name('factura.ver');
 Route::delete('/factura/index/{id}', [Facturas::class, 'eliminar'])->name('factura.elimina');
+Route::put('/factura/status/{id}', [Facturas::class, 'status'])->name('status.presupuesto');
+
+
 
 // Rutas de contactos
 Route::post('/contactos', [ContactoController::class, 'store'])->name('contactos.store');
@@ -72,7 +75,8 @@ Route::get('/presupuesto', [PresupuestoController::class, 'generatePDF2']);
 Route::get('/presupuestos', [PresupuestoController::class, 'index'])->name('presupuestos.index');
 
 Route::get('/presupuestos/{id}/pdf', [PresupuestoController::class, 'generatePDF'])->name('presupuestos.pdf');
-
+Route::get('/orden/producion/{id}/pdf', [PresupuestoController::class, 'ordenpdf'])->name('presupuestos.pdf.orden');
+Route::get('/nota/entrega/{id}/pdf', [PresupuestoController::class, 'notapdf'])->name('presupuestos.pdf.nota');
 
 use App\Http\Controllers\EstatusPresupuestoController;
 

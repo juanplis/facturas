@@ -11,12 +11,21 @@
     @include('menu')
 
     <div class="container mt-5">
-        <h3>Editar Presupuesto</h3>
+        <h3>Editar Presupuesto de {{ $nombreEmpresa }}</h3>
         <div class="card">
             <div class="card-body">
                 <form action="{{ route('factura.update', $presupuesto->id) }}" method="POST">
                     @csrf
                     @method('PUT')
+                    <!--input type="hidden" class="form-control" id="user_id" name="user_id" value="{{ session('user_id'); }}" readonly-->
+                    <input type="hidden" class="form-control" id="user_id" name="user_id" value="{{  session('user_id');  }}" readonly>
+
+
+                  	<!--div class="form-group">
+                    <label for="nombre_empresa">Nombre de la Empresa:</label>
+                    <input type="text" class="form-control" id="nombre_empresa" value="{{ $nombreEmpresa }}" readonly>
+                    </div-->
+
                     <input type="hidden" id="empresa_id" name="empresa_id" value="{{ $presupuesto->empresa_id }}">
 
                     {{-- NUEVO CAMPO: Porcentaje de Inventario Aplicado --}}
@@ -95,7 +104,7 @@
 
                     <div class="form-group">
                         <label for="condiciones_pago">Condiciones de Pago:</label>
-                        <input type="text" class="form-control" id="condiciones_pago" name="condiciones_pago" value="{{ $presupuesto->condiciones_pago }}" required>
+                        <input type="text" class="form-control" id="condiciones_pago" name="condiciones_pago" value="{{ $presupuesto->condiciones_pago }}"    onkeyup="this.value = this.value.toUpperCase();" required>
                     </div>
 
                     <button type="submit" class="btn btn-success btn-block">Actualizar</button>
@@ -159,7 +168,7 @@
 
         // **NUEVA LÓGICA: Obtener el porcentaje aplicado**
         const porcentajeAplicado = parseFloat($('#porcentaje_aplicado').val()) || 0;
-        const factorPorcentaje = porcentajeAplicado / 100;
+        const factorPorcentaje = porcentajeAplicado;
 
         selectedProductCodes.forEach(function(productCode) {
             const productOption = $(`#producto_id option[value="${productCode}"]`);

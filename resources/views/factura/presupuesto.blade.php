@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulario de Presupuestos</title>
+    <title>Formulario de Presupuesto</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
 </head>
@@ -14,9 +14,12 @@
         <div class="card-body">
             <form action="{{ route('factura.carga') }}" method="POST">
                 @csrf <!-- Protección contra CSRF -->
+
                 <div class="container mt-5">
+                    <input type="hidden" class="form-control" id="user_id" name="user_id" value="{{ session('user_id'); }}" readonly>
+
                     @foreach($empresas as $empresa)
-                        <h3>Formulario de Presupuestos: {{ $empresa->razon_social }}</h3>
+                        <h3>Formulario de Presupuesto: {{ $empresa->razon_social }}</h3>
                         <input type="hidden" id="empresa_id" name="empresa_id" value="{{ $empresa->id }}">
                     @endforeach
 
@@ -96,7 +99,7 @@
 
                     <div class="form-group">
                         <label for="condiciones_pago">Condiciones de Pago:</label>
-                        <input type="text" class="form-control" id="condiciones_pago" name="condiciones_pago" required>
+                <input type="text" class="form-control" id="condiciones_pago" name="condiciones_pago" onkeyup="this.value = this.value.toUpperCase();" required>
                     </div>
 
                     <button type="submit" class="btn btn-success btn-block">Enviar</button>
@@ -188,7 +191,7 @@ $(document).ready(function() {
                             const porcentajeInventarioValue = parseFloat(document.getElementById('valor_porcentaje_inventario').value) || 1;
 
                             // Convertir el valor a decimal (e.g., 45 -> 0.45) para usarlo en la división.
-                            const factorPorcentaje = porcentajeInventarioValue / 100;
+                            const factorPorcentaje = porcentajeInventarioValue ;
 
                             // NUEVA LÓGICA: Usar el porcentaje dinámico como divisor (SOLO PARA EMPRESA != 1)
                             if (factorPorcentaje !== 0) {
